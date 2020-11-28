@@ -13,6 +13,20 @@ var jsonParser = bodyParser.json()
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
+var CronJob = require('cron').CronJob;
+
+//production redis url
+let redis_url = process.env.REDIS_URL;
+if (process.env.ENVIRONMENT === 'development') {  
+  require('dotenv').config();  
+  redis_url = "redis://127.0.0.1"; 
+}  
+//redis setup
+let client = require('redis').createClient(redis_url);
+let Redis = require('ioredis');
+let redis = new Redis(redis_url);
+
+// 2020-11-20T17:35:00.000Z
 // PARA ESTE MICROSERVICIO SE NECESITA INGRESAR LOS DATOS DE LA SIGUIENTE MANERA:
 /* Ejemplo de Json del Body para el POST
     {
@@ -26,10 +40,331 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false })
     }
 */
 
+const mysqlConnection = require('../database');
+const { Console } = require('console');
+
+var id = 1;
+try {mysqlConnection.query('SELECT `playerss`.`id_players` FROM `playerss`', function(err,rows,fields){
+    if(!err){
+        console.log(rows)
+        var thisaux = "";
+        for (let index = 0; index < rows.length-1; index++) {
+            thisaux += rows[index].id_players+",";
+        }
+        thisaux += rows[rows.length-1].id_players;
+        console.log(thisaux)
+        var select = 'SELECT DISTINCT `playerss`.`id_players`, `online_sensor`.`id_online_sensor`, `playerss_online_sensor`.`tokens`, `online_sensor`.`base_url`, `sensor_endpoint`.`url_endpoint`, `sensor_endpoint`.`token_parameters`, `sensor_endpoint`.`specific_parameters`, `sensor_endpoint`.`watch_parameters`,`sensor_endpoint`.`schedule_time` '
+        var from = 'FROM `playerss` '
+        var join = 'JOIN `playerss_online_sensor` ON `playerss`.`id_players` = `playerss_online_sensor`.`id_players`     JOIN `online_sensor` ON `online_sensor`.`id_online_sensor` = `playerss_online_sensor`.`id_online_sensor` JOIN `sensor_endpoint` ON `sensor_endpoint`.`sensor_endpoint_id_online_sensor` = `online_sensor`.`id_online_sensor` '
+        var where = 'WHERE `playerss`.`id_players` IN('+thisaux+') ' 
+        var and = 'AND `online_sensor`.`activated` = 1 AND`sensor_endpoint`.`activated` = 1'
+        var query = select+from+join+where+and
+        mysqlConnection.query(query, function(err2,rows2,fields2){
+            if (!err2){
+                console.log(rows2);
+                var apiGetArray = []
+                for (const row of rows2){
+                    var finalEndpoint = row.base_url
+                    var extensionEndpoint = row.url_endpoint                    
+                    if(row.tokens !== null && row.token_parameters !== null){ 
+                        
+                        
+                        var tokens = JSON.parse(row.tokens)
+                        var token_parameters = JSON.parse(row.token_parameters)
+                        var tokensKeys = Object.keys(tokens)
+                        var parametersKeys = Object.keys(token_parameters)
+                        for(const tkey of tokensKeys){
+                            for(const pkey of parametersKeys){
+                                console.log(tkey)
+                                console.log(pkey)
+                                if(tkey == pkey){
+                                  tokenValue = tokens[tkey]
+                                  parameterValue = token_parameters[tkey]
+                                  extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)
+                                  
+                                }
+                            }	
+                        
+                        }
+                        finalEndpoint += extensionEndpoint
+                        console.log(finalEndpoint)
+                        apiGetArray.push({  
+                            "id_player": row.id_players,   
+                            "id_online_sensor": row.id_online_sensor,
+                            "endpoint": finalEndpoint,
+                            "watch_parameters":row.watch_parameters,                                             
+                            "time": row.schedule_time
+                         })
+                    }
+                    
+                    
+                 
+                    
+                
+                   
+
+                }
+                schedulingOnlineData(apiGetArray)
+            } else {
+                console.log(err);
+            }
+        });
+        
+    } else {
+        console.log(err);
+    }
+    
+});
+} catch(ex) {
+    console.log(ex)
+}
+
+async function getData(getJob){
+    
+    const response = await fetch(getJob.endpoint, {
+        method: "GET",
+        headers: {
+            "Content-type": "application/json",
+            "Accept": "application/json",
+            "Accept-Charset": "utf-8"
+        },
+    })
+    const json = await response.json();
+    var uniqueSensorID = getJob.id_player.toString()+getJob.id_online_sensor.toString()+getJob.endpoint
+    //Revisar si el dato esta en la cache
+    client.get(uniqueSensorID, (error, rep)=> {                
+        if(error){                                                 
+            console.log('nope', error)                      
+            return;                
+        }                 
+        if(rep){  
+            //Lo que esta en el cache       
+            console.log('se encontro en el cache lo siguiente: ')
+            console.log(rep)                   
+            var repJsonFormat = JSON.parse(rep)               
+            //Tipo de operaciones de comparacion existentes: < > <= >= === !== 
+            //Tipo de operaciones aritmeticas existentes: + - / *
+            // El operando de la izquierda es el que se obtiene de la api y el de la derecha es el existente
+            /* Formato ej
+                {   
+                    "comparisons":['>',','...], Alberga la comparacion que se quiere hacer (ej, 200(obtenido)>198(existente) si el dato que saco es mayor que el existente)
+                    "operations": ['-', '+'], Alberga la operacion que se quiere hacer con el dato obtenido y el que existe actualmente
+                    "parameters":['win','chess_daily,record,win','...] Alberga los campos que se quieren comparar (si estan mas adentro, se separan con comas)
+                }
+
+                Por ejemplo: 
+                 {   
+                    "comparisons":['>'], 
+                    "operations": ['-'], 
+                    "parameters":['chess_blitz,record,win'] 
+                }
+                Se quiere ver las partidas ganadas del dia en ajedrez (win)
+                Se tiene como dato actualmente un win:19
+                La ubicacion en el json obtenido es 
+                {
+                    chess_daily:{
+                        record: {win: 20, lose:1, draw:5},
+                        puzzles: {},
+                        lessons:{}
+                    }
+                }
+
+                1)Comparar 20 con 19 usando > => true
+                  Eso quiere decir que hubo un cambio con respecto a la ves anterior (en este contexto, se recompenza haber ganado una partida mas)
+
+                2)Operacion 20-19 = 1 (se gano una partida) y ese 1 es el dato a posteriormente convertir en algun equivalente de atributos
+            */
+           console.log('hay watch parameters?')
+           console.log(getJob.watch_parameters)
+           if(getJob.watch_parameters !== null){
+            var watch_parameters_json = JSON.parse(getJob.watch_parameters) 
+            var comparisons = watch_parameters_json.comparisons
+            var operations = watch_parameters_json.operations
+            var parameters = watch_parameters_json.parameters
+            //En repJsonFormat esta lo del cache
+            //En json esta lo obtenido desde la api
+            console.log(comparisons)
+            console.log(operations)
+            console.log(parameters)
+            var repValues = []
+            var jsonValues = []
+            for (const parameter of parameters){
+                //Si es esta anidado, es decir, si tiene comas
+                console.log('este es el parametro a ver ', parameter)
+                if(/(,)/.test(parameter)){
+                    console.log('el ', parameter)
+                    console.log('esta anidado')
+
+                    //
+                    var res = parameter.split(","); // Ej: ['chess_daily','record','win']
+                    var actualData = json
+                    var cacheData = repJsonFormat
+                    for(let i = 0; i<res.length; i++){
+                        actualData = actualData[res[i]]
+                        cacheData = cacheData[res[i]]
+
+                    }
+                    jsonValues.push(actualData)
+                    repValues.push(cacheData)
+                }
+                else{
+                    //El dato no esta anidado, es decir, esta en una llave al inicio
+                    jsonValues.push(json[parameter])
+                    repValues.push(repJsonFormat[parameter])
+
+                }
+            }
+            console.log(repValues)
+            console.log(jsonValues)
+            var arrayChanges = []
+            for (let j= 0; j<parameters.length; j++){
+                /* Ej 
+                    comparasions = ['>']
+                    operations =  ['-'] 
+                    jsonValues = [202]
+                    repValues = [200]
+                    
+                */
+               var boolResult;
+               switch (comparisons[j]) {
+                    case '>':
+                        if(jsonValues[j] > repValues[j] ){
+                            boolResult = true
+                        }
+                        else{
+                            boolResult = false
+                        }
+                       
+                       
+                    break;
+                    case '<':
+                        if(jsonValues[j] < repValues[j] ){
+                            boolResult = true
+                        }
+                        else{
+                            boolResult = false
+                        }
+                    
+                    break;
+                    case '>=':
+                        if(jsonValues[j] >= repValues[j] ){
+                            boolResult = true
+                        }
+                        else{
+                            boolResult = false
+                        }
+                    
+                    break;
+                    case '<=':
+                        if(jsonValues[j] <= repValues[j] ){
+                            boolResult = true
+                        }
+                        else{
+                            boolResult = false
+                        }
+                    
+                    break;
+                    case '===':
+                        if(jsonValues[j] === repValues[j] ){
+                            boolResult = true
+                        }
+                        else{
+                            boolResult = false
+                        }
+                    
+                    break;
+                    case '!==':
+                        if(jsonValues[j] !== repValues[j] ){
+                            boolResult = true
+                        }
+                        else{
+                            boolResult = false
+                        }
+                    
+                    break;
+               }
+               //Existe un cambio
+               if(boolResult){
+                    var changed;
+                    switch (operations[j]) {
+                        case '+':
+                            changed = jsonValues[j] + repValues[j]                      
+                        break;
+                        case '-':
+                            changed = jsonValues[j] - repValues[j]
+                        break;
+                        case '*':
+                            changed = jsonValues[j] * repValues[j]
+                        break;
+                        case '/':
+                            if(repValues[j]>0){
+                                changed = jsonValues[j] / repValues[j]
+                            }
+                        break;
+                    }
+                    arrayChanges.push(changed)
+                    client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
+                        if(error){                                                
+                            console.log('nope', error)                           
+                        }
+                        else{
+                            console.log('after client.set result is', result);
+                            console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(json) );
+                        }
+                    }) 
+
+               }
+            }
+            
+            console.log('algun cambio?')
+            console.log(arrayChanges.length)
+
+            
+           }
+           console.log('terminep')
+           //Actualizar el cache con la nueva informacion
+           
+           
+
+        }                  
+        else{
+            //Si no se encuentra entonces almacenar en la cache usando su identificador
+            client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
+                if(error){                                                
+                    console.log('nope', error)                           
+                }
+                else{
+                    console.log('after client.set result is', result);
+                    console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(json) );
+                }
+            })   
+        }   //end of outer else
+    })  //end of clinet.get 
+
+    console.log(json);
+
+    
+}
+
+function runningJobs(getJob) {
+
+    var job = new CronJob('*/'+ getJob.time.toString()+' * * * * *', function(){
+        getData(getJob)       
+    }, true, 'America/Santiago');
+    return job;    
+}
+function schedulingOnlineData(apiGetArray) {
+    console.log(apiGetArray)
+    for (let i=0; i<apiGetArray.length; i++) runningJobs(apiGetArray[i])
+    
+}
+
+
 /*
 Input:  Json of sensor data
 Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
+This function is used by devices that can post directly to the cloud service like mobile phones
 */
 router.post('/CaptureData/', jsonParser, function(req,res,next){
     try {
@@ -75,7 +410,7 @@ router.post('/CaptureData/', jsonParser, function(req,res,next){
         .then(res => {
             if (res.resultCode == "200") return res.json('Success');
             return Promise.reject(`Bad call: ${res.resultCode}`);
-      })
+        })
         .then(console.log);
     } catch (error) {
         next(error);
