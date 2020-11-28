@@ -1,2 +1,1 @@
-web: node src/index.js
-worker: redis-server
+web: node src/index.js && redis-server
