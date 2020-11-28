@@ -1,1 +1,1 @@
-web: node src/index.js && redis-server
+web: node src/index.js
