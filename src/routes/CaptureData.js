@@ -154,6 +154,7 @@ function createFullEndpoint(row){
 }
 
 async function getData(getJob){
+    console.log(`Entro ${getJob}`)
     var uniqueSensorID = getUniqueSensorID(getJob)
     const response = await fetch(getJob.endpoint, {
         method: "GET",
