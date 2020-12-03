@@ -42,6 +42,8 @@ let redis = new Redis(redis_url);
 
 const mysqlConnection = require('../database');
 const { Console } = require('console');
+var getAPIArray = []
+
 
 var id = 1;
 try {mysqlConnection.query('SELECT `playerss`.`id_players` FROM `playerss`', function(err,rows,fields){
@@ -53,7 +55,7 @@ try {mysqlConnection.query('SELECT `playerss`.`id_players` FROM `playerss`', fun
         }
         thisaux += rows[rows.length-1].id_players;
         console.log(thisaux)
-        var select = 'SELECT DISTINCT `playerss`.`id_players`, `online_sensor`.`id_online_sensor`, `playerss_online_sensor`.`tokens`, `online_sensor`.`base_url`, `sensor_endpoint`.`url_endpoint`, `sensor_endpoint`.`token_parameters`, `sensor_endpoint`.`specific_parameters`, `sensor_endpoint`.`watch_parameters`,`sensor_endpoint`.`schedule_time` '
+        var select = 'SELECT DISTINCT `playerss`.`id_players`, `online_sensor`.`id_online_sensor`,`sensor_endpoint`.`id_sensor_endpoint`, `playerss_online_sensor`.`tokens`, `online_sensor`.`base_url`, `sensor_endpoint`.`url_endpoint`, `sensor_endpoint`.`token_parameters`, `sensor_endpoint`.`specific_parameters`, `sensor_endpoint`.`watch_parameters`,`sensor_endpoint`.`schedule_time` '
         var from = 'FROM `playerss` '
         var join = 'JOIN `playerss_online_sensor` ON `playerss`.`id_players` = `playerss_online_sensor`.`id_players`     JOIN `online_sensor` ON `online_sensor`.`id_online_sensor` = `playerss_online_sensor`.`id_online_sensor` JOIN `sensor_endpoint` ON `sensor_endpoint`.`sensor_endpoint_id_online_sensor` = `online_sensor`.`id_online_sensor` '
         var where = 'WHERE `playerss`.`id_players` IN('+thisaux+') ' 
@@ -63,46 +65,10 @@ try {mysqlConnection.query('SELECT `playerss`.`id_players` FROM `playerss`', fun
             if (!err2){
                 console.log(rows2);
                 var apiGetArray = []
+                var individualEndpoint;
                 for (const row of rows2){
-                    var finalEndpoint = row.base_url
-                    var extensionEndpoint = row.url_endpoint                    
-                    if(row.tokens !== null && row.token_parameters !== null){ 
-                        
-                        
-                        var tokens = JSON.parse(row.tokens)
-                        var token_parameters = JSON.parse(row.token_parameters)
-                        var tokensKeys = Object.keys(tokens)
-                        var parametersKeys = Object.keys(token_parameters)
-                        for(const tkey of tokensKeys){
-                            for(const pkey of parametersKeys){
-                                console.log(tkey)
-                                console.log(pkey)
-                                if(tkey == pkey){
-                                  tokenValue = tokens[tkey]
-                                  parameterValue = token_parameters[tkey]
-                                  extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)
-                                  
-                                }
-                            }	
-                        
-                        }
-                        finalEndpoint += extensionEndpoint
-                        console.log(finalEndpoint)
-                        apiGetArray.push({  
-                            "id_player": row.id_players,   
-                            "id_online_sensor": row.id_online_sensor,
-                            "endpoint": finalEndpoint,
-                            "watch_parameters":row.watch_parameters,                                             
-                            "time": row.schedule_time
-                         })
-                    }
-                    
-                    
-                 
-                    
-                
-                   
-
+                    individualEndpoint = createFullEndpoint(row)
+                    apiGetArray.push(individualEndpoint)
                 }
                 schedulingOnlineData(apiGetArray)
             } else {
@@ -119,8 +85,56 @@ try {mysqlConnection.query('SELECT `playerss`.`id_players` FROM `playerss`', fun
     console.log(ex)
 }
 
-async function getData(getJob){
+function getUniqueSensorID(sensor){
+    return sensor.id_player.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint
+}
+
+function createFinalEndpoint(row){
+  
+    var finalEndpoint = row.base_url
+    var extensionEndpoint = row.url_endpoint                    
+    var tokens = JSON.parse(row.tokens)
+    var token_parameters = JSON.parse(row.token_parameters)
+    var tokensKeys = Object.keys(tokens)
+    var parametersKeys = Object.keys(token_parameters)
+    for(const tkey of tokensKeys){
+        for(const pkey of parametersKeys){
+            console.log(tkey)
+            console.log(pkey)
+            if(tkey == pkey){
+              tokenValue = tokens[tkey]
+              parameterValue = token_parameters[tkey]
+              extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)
+              
+            }
+        }	
     
+    }
+    finalEndpoint += extensionEndpoint
+    console.log(finalEndpoint)
+    return finalEndpoint
+}
+function createFullEndpoint(row){
+    if(row.tokens !== null && row.token_parameters !== null){ 
+        
+      
+        individualEndpoint ={  
+            "id_player": row.id_players,   
+            "id_online_sensor": row.id_online_sensor,
+            "id_sensor_endpoint": row.id_sensor_endpoint,
+            "endpoint": createFinalEndpoint(row),
+            "watch_parameters":row.watch_parameters,                                             
+            "schedule_time": row.schedule_time
+         }
+         return individualEndpoint
+    }
+    
+    
+ 
+}
+
+async function getData(getJob){
+    var uniqueSensorID = getUniqueSensorID(getJob)
     const response = await fetch(getJob.endpoint, {
         method: "GET",
         headers: {
@@ -130,7 +144,7 @@ async function getData(getJob){
         },
     })
     const json = await response.json();
-    var uniqueSensorID = getJob.id_player.toString()+getJob.id_online_sensor.toString()+getJob.endpoint
+ 
     //Revisar si el dato esta en la cache
     client.get(uniqueSensorID, (error, rep)=> {                
         if(error){                                                 
@@ -348,9 +362,12 @@ async function getData(getJob){
 
 function runningJobs(getJob) {
 
-    var job = new CronJob('*/'+ getJob.time.toString()+' * * * * *', function(){
+    var job = new CronJob('*/'+ getJob.schedule_time.toString()+' * * * * *', function(){
         getData(getJob)       
     }, true, 'America/Santiago');
+    var uniqueSensorID  = getUniqueSensorID(getJob)
+
+    getAPIArray.push({"job":job, "id":uniqueSensorID })
     return job;    
 }
 function schedulingOnlineData(apiGetArray) {
@@ -358,6 +375,168 @@ function schedulingOnlineData(apiGetArray) {
     for (let i=0; i<apiGetArray.length; i++) runningJobs(apiGetArray[i])
     
 }
+
+function deleteSensorEndpoint(uniqueSensorID){
+
+    var indexApiToDelete;
+    getAPIArray.forEach((api,index) => {
+        if(api.id === uniqueSensorID){
+            api.job.stop()
+            indexApiToDelete = index
+        }        
+    });
+    getAPIArray.splice(indexApiToDelete)
+}
+/*
+Input:  Json of sensor data
+  individualEndpoint ={  
+        "id_player": id_players,   
+        "id_online_sensor": id_online_sensor,
+        "id_sensor_endpoint": id_sensor_endpoint,
+        "tokens":tokens,
+        "base_url": base_url,
+        "url_endpoint":url_endpoint,
+        "token_parameters": token_parameters,
+        "watch_parameters":watch_parameters,                                             
+        "schedule_time": schedule_time
+   }
+*/
+function createSensorEndpoint(fullSensorBody){
+    var finalEndpoint = createFullEndpoint(fullSensorBody)
+    var job = new CronJob('*/'+ finalEndpoint.schedule_time.toString()+' * * * * *', function(){
+        getData(finalEndpoint)       
+    }, true, 'America/Santiago');
+    var uniqueSensorID = getUniqueSensorID(getJob)
+    getAPIArray.push({"job":job, "id":uniqueSensorID })
+    
+
+}
+
+/*
+Input:  Json of sensor data
+  individualEndpoint ={  
+        "id_player": id_players,   
+        "id_online_sensor": id_online_sensor,
+        "tokens":tokens,
+        "base_url": base_url,
+        "url_endpoint":url_endpoint,
+        "token_parameters": token_parameters,
+        "watch_parameters":watch_parameters,                                             
+        "schedule_time": schedule_time
+   }
+Output: Void (stores the data in the db)
+Description: Calls the b-Games-ApirestPostAtt service 
+This function is used by devices that can post directly to the cloud service like mobile phones
+*/
+router.put('/editSensorEndpoint/', jsonParser, function(req,res,next){    
+    var uniqueSensorID = getUniqueSensorID(req.body)
+    deleteSensorEndpoint(uniqueSensorID)
+    createSensorEndpoint(req.body)
+    
+
+    return res.sendStatus(200).json({
+        status: `Sensor endpoint ${req.body} edition succesful!`
+      });
+
+})
+/*
+Input:  Json of sensor id
+Output: Void (stores the data in the db)
+Description: Calls the b-Games-ApirestPostAtt service 
+This function is used by devices that can post directly to the cloud service like mobile phones
+*/
+router.put('/stopSensorEndpoint/', jsonParser, function(req,res,next){
+    var uniqueSensorID = getUniqueSensorID(req.body)
+    
+    getAPIArray.forEach(api => {
+        if(api.id === uniqueSensorID){
+            api.job.stop()
+        }
+        
+    });
+    return res.sendStatus(200).json({
+        Status: `The sensor endpoint ${req.body} has stopped`
+      });
+
+})
+/*
+Input:  Json of sensor id
+Output: Void (stores the data in the db)
+Description: Calls the b-Games-ApirestPostAtt service 
+This function is used by devices that can post directly to the cloud service like mobile phones
+*/
+router.put('/startSensorEndpoint/', jsonParser, function(req,res,next){    
+    var uniqueSensorID = getUniqueSensorID(req.body)
+
+    getAPIArray.forEach(api => {
+        if(api.id === uniqueSensorID){
+            api.job.start()
+        }
+        
+    });
+    return res.sendStatus(200).json({
+        status: `The sensor endpoint ${req.body} has started`
+      });
+
+})
+/*
+Input:  Json of sensor data 
+  individualEndpoint ={  
+        "id_player": id_players,   
+        "id_online_sensor": id_online_sensor,
+        "id_sensor_endpoint": id_sensor_endpoint,
+        "tokens":tokens,
+        "base_url": base_url,
+        "url_endpoint":url_endpoint,
+        "token_parameters": token_parameters,
+        "watch_parameters":watch_parameters,                                             
+        "schedule_time": schedule_time
+   }
+  individualEndpointProcceced ={  
+            "id_player": row.id_players,   
+            "id_online_sensor": row.id_online_sensor,
+            "id_sensor_endpoint": id_sensor_endpoint,
+            "endpoint": finalEndpoint,
+            "watch_parameters":row.watch_parameters,                                             
+            "schedule_time": row.schedule_time
+   }
+Output: Void (stores the data in the db)
+Description: Calls the b-Games-ApirestPostAtt service 
+This function is used by devices that can post directly to the cloud service like mobile phones
+*/
+router.post('/createSensorEndpoint/', jsonParser, function(req,res,next){
+    createSensorEndpoint(req.body)
+    return res.sendStatus(200).json({
+        status: `Sensor endpoint ${req.body} creation succesful!`
+      });
+})
+/*
+Input:  Json of sensor data
+  individualEndpoint ={  
+        "id_player": id_players,   
+        "id_online_sensor": id_online_sensor,
+        "id_sensor_endpoint": id_sensor_endpoint,
+        "tokens":tokens,
+        "base_url": base_url,
+        "url_endpoint":url_endpoint,
+        "token_parameters": token_parameters,
+        "watch_parameters":watch_parameters,                                             
+        "schedule_time": schedule_time
+   }
+Output: Void (stores the data in the db)
+Description: Calls the b-Games-ApirestPostAtt service 
+This function is used by devices that can post directly to the cloud service like mobile phones
+*/
+router.delete('/deleteSensorEndpoint/', jsonParser, function(req,res,next){
+    var uniqueSensorID = getUniqueSensorID(req.body)
+
+    deleteSensorEndpoint(uniqueSensorID)
+    return res.sendStatus(200).json({
+        status: `Sensor endpoint ${req.body} deletion succesful!`
+      });    
+
+})
+
 
 
 /*
