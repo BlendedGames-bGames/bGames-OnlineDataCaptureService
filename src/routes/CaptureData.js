@@ -92,42 +92,47 @@ function getUniqueSensorID(sensor){
 function createFinalEndpoint(row){
   
     var finalEndpoint = row.base_url
-    var extensionEndpoint = row.url_endpoint                    
-    var tokens = JSON.parse(row.tokens)
-    var token_parameters = JSON.parse(row.token_parameters)
-    var tokensKeys = Object.keys(tokens)
-    var parametersKeys = Object.keys(token_parameters)
-    for(const tkey of tokensKeys){
-        for(const pkey of parametersKeys){
-            console.log(tkey)
-            console.log(pkey)
-            if(tkey == pkey){
-              tokenValue = tokens[tkey]
-              parameterValue = token_parameters[tkey]
-              extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)
-              
-            }
-        }	
+    var extensionEndpoint = row.url_endpoint   
     
-    }
+    if(row.tokens !== null && row.token_parameters !== null){
+        var tokens = JSON.parse(row.tokens)
+        var token_parameters = JSON.parse(row.token_parameters)
+        var tokensKeys = Object.keys(tokens)
+        var parametersKeys = Object.keys(token_parameters)
+        for(const tkey of tokensKeys){
+            for(const pkey of parametersKeys){
+                console.log(tkey)
+                console.log(pkey)
+                if(tkey == pkey){
+                  tokenValue = tokens[tkey]
+                  parameterValue = token_parameters[tkey]
+                  extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)
+                  
+                }
+            }	
+        
+        }
+
+
+    }                 
+ 
     finalEndpoint += extensionEndpoint
     console.log(finalEndpoint)
     return finalEndpoint
 }
 function createFullEndpoint(row){
-    if(row.tokens !== null && row.token_parameters !== null){ 
         
       
-        individualEndpoint ={  
-            "id_player": row.id_players,   
-            "id_online_sensor": row.id_online_sensor,
-            "id_sensor_endpoint": row.id_sensor_endpoint,
-            "endpoint": createFinalEndpoint(row),
-            "watch_parameters":row.watch_parameters,                                             
-            "schedule_time": row.schedule_time
-         }
-         return individualEndpoint
+    individualEndpoint ={  
+        "id_player": row.id_players,   
+        "id_online_sensor": row.id_online_sensor,
+        "id_sensor_endpoint": row.id_sensor_endpoint,
+        "endpoint": createFinalEndpoint(row),
+        "watch_parameters":row.watch_parameters,                                             
+        "schedule_time": row.schedule_time
     }
+    return individualEndpoint
+
     
     
  
