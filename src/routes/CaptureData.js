@@ -95,8 +95,19 @@ function createFinalEndpoint(row){
     var extensionEndpoint = row.url_endpoint   
     
     if(row.tokens !== null && row.token_parameters !== null){
-        var tokens = JSON.parse(row.tokens)
-        var token_parameters = JSON.parse(row.token_parameters)
+        var tokens;
+        var token_parameters;
+        //Si no es un json (cuando se saca de la db es un string)
+        if(typeof(row.tokens) !== "object" && typeof(row.token_parameters) !== "object"){
+
+            tokens = JSON.parse(row.tokens)
+            token_parameters = JSON.parse(row.token_parameters)
+        }
+        else{
+            //Si ya es un json (pasa en peticiones desde el front)
+            tokens = row.tokens
+            token_parameters = row.token_parameters
+        }
         var tokensKeys = Object.keys(tokens)
         var parametersKeys = Object.keys(token_parameters)
         for(const tkey of tokensKeys){
