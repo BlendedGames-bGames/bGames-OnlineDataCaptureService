@@ -86,7 +86,7 @@ try {mysqlConnection.query('SELECT `playerss`.`id_players` FROM `playerss`', fun
 }
 
 function getUniqueSensorID(sensor){
-    return sensor.id_player.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint
+    return sensor.id_player.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
 }
 
 function createFinalEndpoint(row){
