@@ -85,12 +85,19 @@ try {mysqlConnection.query('SELECT `playerss`.`id_players` FROM `playerss`', fun
     console.log(ex)
 }
 
-function getUniqueSensorID(sensor){
-    console.log( sensor.id_player.toString())
+function getUniqueSensorID(sensor){    
     console.log(sensor.id_online_sensor.toString())
     console.log(sensor.id_sensor_endpoint.toString())
+    //Cuando se crea un sensor_point en el front
+    if(sensor.id_player === undefined){
+        return sensor.id_players.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
+
+    }
+    else{
+        return sensor.id_player.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
+
+    }
     
-    return sensor.id_player.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
 }
 
 function createFinalEndpoint(row){
