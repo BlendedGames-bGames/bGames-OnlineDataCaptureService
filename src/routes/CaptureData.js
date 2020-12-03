@@ -154,7 +154,8 @@ function createFullEndpoint(row){
 }
 
 async function getData(getJob){
-    console.log(`Entro ${getJob}`)
+    console.log('esto es lo quie entra en la funcion del cron')
+    console.log(JSON.stringify(getJob))
     var uniqueSensorID = getUniqueSensorID(getJob)
     const response = await fetch(getJob.endpoint, {
         method: "GET",
@@ -423,11 +424,17 @@ Input:  Json of sensor data
    }
 */
 function createSensorEndpoint(fullSensorBody){
+    console.log('esto entro:')
+    console.log(JSON.stringify(fullSensorBody))
     var finalEndpoint = createFullEndpoint(fullSensorBody)
+    console.log('Este es el endpoint final:')
+    console.log(JSON.stringify(finalEndpoint))
     var job = new CronJob('*/'+ finalEndpoint.schedule_time.toString()+' * * * * *', function(){
         getData(finalEndpoint)       
     }, true, 'America/Santiago');
     var uniqueSensorID = getUniqueSensorID(fullSensorBody)
+    console.log('este es el id')
+    console.log(uniqueSensorID)
     getAPIArray.push({"job":job, "id":uniqueSensorID })
 
 }
