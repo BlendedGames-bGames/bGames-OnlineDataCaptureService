@@ -422,7 +422,7 @@ function createSensorEndpoint(fullSensorBody){
     var job = new CronJob('*/'+ finalEndpoint.schedule_time.toString()+' * * * * *', function(){
         getData(finalEndpoint)       
     }, true, 'America/Santiago');
-    var uniqueSensorID = getUniqueSensorID(getJob)
+    var uniqueSensorID = getUniqueSensorID(fullSensorBody)
     getAPIArray.push({"job":job, "id":uniqueSensorID })
     
 
