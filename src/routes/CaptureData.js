@@ -86,7 +86,11 @@ try {mysqlConnection.query('SELECT `playerss`.`id_players` FROM `playerss`', fun
 }
 
 function getUniqueSensorID(sensor){
-    return sensor.id_player.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
+    console.log( sensor.id_players.toString())
+    console.log(sensor.id_online_sensor.toString())
+    console.log(sensor.id_sensor_endpoint.toString())
+    
+    return sensor.id_players.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
 }
 
 function createFinalEndpoint(row){
@@ -424,7 +428,9 @@ function createSensorEndpoint(fullSensorBody){
     }, true, 'America/Santiago');
     var uniqueSensorID = getUniqueSensorID(fullSensorBody)
     getAPIArray.push({"job":job, "id":uniqueSensorID })
-    
+    return res.sendStatus(200).json({
+        status: `Sensor endpoint ${req.body} creatioon succesful!`
+      });
 
 }
 
