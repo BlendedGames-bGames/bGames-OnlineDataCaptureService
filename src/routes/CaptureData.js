@@ -428,9 +428,6 @@ function createSensorEndpoint(fullSensorBody){
     }, true, 'America/Santiago');
     var uniqueSensorID = getUniqueSensorID(fullSensorBody)
     getAPIArray.push({"job":job, "id":uniqueSensorID })
-    return res.sendStatus(200).json({
-        status: `Sensor endpoint ${req.body} creatioon succesful!`
-      });
 
 }
 
