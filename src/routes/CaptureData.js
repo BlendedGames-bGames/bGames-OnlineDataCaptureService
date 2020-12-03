@@ -220,7 +220,15 @@ async function getData(getJob){
            console.log('hay watch parameters?')
            console.log(getJob.watch_parameters)
            if(getJob.watch_parameters !== null){
-            var watch_parameters_json = JSON.parse(getJob.watch_parameters) 
+            var watch_parameters_json;
+            if(getJob.watch_parameters !== "object"){
+                 watch_parameters_json = JSON.parse(getJob.watch_parameters) 
+            }
+            else{
+                watch_parameters_json = getJob.watch_parameters
+            }
+               
+               
             var comparisons = watch_parameters_json.comparisons
             var operations = watch_parameters_json.operations
             var parameters = watch_parameters_json.parameters
