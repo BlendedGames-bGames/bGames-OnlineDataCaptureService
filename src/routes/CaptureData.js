@@ -478,10 +478,30 @@ This function is used by devices that can post directly to the cloud service lik
 router.put('/editSensorEndpoint/', jsonParser, function(req,res,next){    
     var uniqueSensorID = getUniqueSensorID(req.body)
     deleteSensorEndpoint(uniqueSensorID)
+    var endpoint = createFinalEndpoint(req.body)
+    const response = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+            "Content-type": "application/json",
+            "Accept": "application/json",
+            "Accept-Charset": "utf-8"
+        },
+    })
+    const json = await response.json();
+    client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
+        if(error){                                                
+            console.log('nope', error)                           
+        }
+        else{
+            console.log('after client.set result is', result);
+            console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(json) );
+        }
+    }) 
+
     createSensorEndpoint(req.body)
     
 
-    return res.sendStatus(200).json({
+    res.sendStatus(200).json({
         status: `Sensor endpoint ${req.body} edition succesful!`
       });
 
