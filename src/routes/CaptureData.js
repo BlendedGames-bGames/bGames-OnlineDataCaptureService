@@ -511,13 +511,13 @@ router.put('/editSensorEndpoint/', jsonParser, wrap(async(req,res,next) => {
         createSensorEndpoint(req.body)
         
     
-        res.sendStatus(200).json({
+        res.status(200).json({
             status: `Sensor endpoint ${req.body} edition succesful!`
           });
     }
     catch (e){
         next(e)
-        res.sendStatus(500).json({
+        res.status(500).json({
             status: `Sensor endpoint ${req.body} nope`
           });
     }
@@ -540,7 +540,7 @@ router.put('/stopSensorEndpoint/', jsonParser, function(req,res,next){
         }
         
     });
-    res.sendStatus(200).json({
+    res.status(200).json({
         Status: `The sensor endpoint ${req.body} has stopped`
       });
 
@@ -560,9 +560,9 @@ router.put('/startSensorEndpoint/', jsonParser, function(req,res,next){
         }
         
     });
-    res.sendStatus(200).json({
+    res.status(200).json({
         status: `The sensor endpoint ${req.body} has started`
-      });
+    });
 
 })
 /*
@@ -592,7 +592,7 @@ This function is used by devices that can post directly to the cloud service lik
 */
 router.post('/createSensorEndpoint/', jsonParser, function(req,res,next){
     createSensorEndpoint(req.body)
-    res.sendStatus(200).json({
+    res.status(200).json({
         status: `Sensor endpoint ${req.body} creation succesful!`
       });
 })
@@ -617,9 +617,10 @@ router.delete('/deleteSensorEndpoint/', jsonParser, function(req,res,next){
     var uniqueSensorID = getUniqueSensorID(req.body)
 
     deleteSensorEndpoint(uniqueSensorID)
-    res.sendStatus(200).json({
+    res.status(200).json({
         status: `Sensor endpoint ${req.body} deletion succesful!`
       });    
+    
 
 })
 
