@@ -498,6 +498,11 @@ router.put('/editSensorEndpoint/', jsonParser, function(req,res,next){
     var recievedJson = null
     try {
         recievedJson = asyncWrapper(getDataEndpoint(endpoint))
+        console.log('Estoy editando el sensor')
+        console.log('Este es el json que me dio')
+        console.log(recievedJson)
+        console.log('Este es el ID (deberia ser 113)')
+        console.log(uniqueSensorID)
         client.set(uniqueSensorID, JSON.stringify(recievedJson),(error, result)=> { 
             if(error){                                                
                 console.log('nope', error)                           
