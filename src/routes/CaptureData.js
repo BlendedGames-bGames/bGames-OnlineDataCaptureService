@@ -484,6 +484,7 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
+const wrap = fn => (...args) => fn(...args).catch(args[2])
 
 router.put('/editSensorEndpoint/', jsonParser, wrap(async(req,res,next) => {    
     var uniqueSensorID = getUniqueSensorID(req.body)
