@@ -501,7 +501,7 @@ router.put('/stopSensorEndpoint/', jsonParser, function(req,res,next){
         }
         
     });
-    return res.sendStatus(200).json({
+    res.sendStatus(200).json({
         Status: `The sensor endpoint ${req.body} has stopped`
       });
 
@@ -521,7 +521,7 @@ router.put('/startSensorEndpoint/', jsonParser, function(req,res,next){
         }
         
     });
-    return res.sendStatus(200).json({
+    res.sendStatus(200).json({
         status: `The sensor endpoint ${req.body} has started`
       });
 
@@ -553,7 +553,7 @@ This function is used by devices that can post directly to the cloud service lik
 */
 router.post('/createSensorEndpoint/', jsonParser, function(req,res,next){
     createSensorEndpoint(req.body)
-    return res.sendStatus(200).json({
+    res.sendStatus(200).json({
         status: `Sensor endpoint ${req.body} creation succesful!`
       });
 })
@@ -578,7 +578,7 @@ router.delete('/deleteSensorEndpoint/', jsonParser, function(req,res,next){
     var uniqueSensorID = getUniqueSensorID(req.body)
 
     deleteSensorEndpoint(uniqueSensorID)
-    return res.sendStatus(200).json({
+    res.sendStatus(200).json({
         status: `Sensor endpoint ${req.body} deletion succesful!`
       });    
 
