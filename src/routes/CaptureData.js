@@ -179,12 +179,14 @@ async function getData(getJob){
     const json = await getDataEndpoint(getJob)
  
     //Revisar si el dato esta en la cache
-    client.get(uniqueSensorID, (error, rep)=> {                
+    client.get(uniqueSensorID, (error, rep)=> {         
+        console.log('este es el rep')
+        console.log(rep)       
         if(error){                                                 
             console.log('nope', error)                      
             return;                
         }                 
-        if(rep){  
+        if(rep && rep!== null){  
             //Lo que esta en el cache       
             console.log('se encontro en el cache lo siguiente: ')
             console.log(rep)                   
