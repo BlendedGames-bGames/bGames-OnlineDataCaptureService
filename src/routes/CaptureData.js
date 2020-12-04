@@ -483,7 +483,7 @@ router.put('/editSensorEndpoint/', jsonParser, function(req,res,next){
     var uniqueSensorID = getUniqueSensorID(req.body)
     deleteSensorEndpoint(uniqueSensorID)
     var endpoint = createFinalEndpoint(req.body)
-    const recievedJson;
+    var recievedJson = null
     try {
         recievedJson = await getDataEndpoint(req.body)
     }
