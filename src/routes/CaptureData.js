@@ -479,13 +479,20 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
+function asyncWrapper(fn) {
+    return (req, res, next) => {
+      return Promise.resolve(fn(req))
+        .then((result) => res.send(result))
+        .catch((err) => next(err))
+    }
+}
 router.put('/editSensorEndpoint/', jsonParser, function(req,res,next){    
     var uniqueSensorID = getUniqueSensorID(req.body)
     deleteSensorEndpoint(uniqueSensorID)
     var endpoint = {endpoint: createFinalEndpoint(req.body)}
     var recievedJson = null
     try {
-        recievedJson = getDataEndpoint(endpoint)
+        recievedJson = asyncWrapper(getDataEndpoint(endpoint))
         client.set(uniqueSensorID, JSON.stringify(recievedJson),(error, result)=> { 
             if(error){                                                
                 console.log('nope', error)                           
