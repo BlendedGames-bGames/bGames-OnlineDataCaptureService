@@ -186,8 +186,10 @@ async function getData(getJob){
             console.log('nope', error)                      
             return;                
         }  
-        console.log(typeof(rep))               
-        if(rep){  
+        console.log(typeof(rep))    
+        console.log(rep)   
+        console.log(rep !== '{}')             
+        if(rep && rep !== '{}'){  
             //Lo que esta en el cache       
             console.log('se encontro en el cache lo siguiente: ')
             console.log(rep)                   
