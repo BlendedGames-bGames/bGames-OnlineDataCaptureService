@@ -159,11 +159,7 @@ function createFullEndpoint(row){
     
  
 }
-
-async function getData(getJob){
-    console.log('esto es lo quie entra en la funcion del cron')
-    console.log(JSON.stringify(getJob))
-    var uniqueSensorID = getUniqueSensorID(getJob)
+async function getDataEndpoint(getJob){
     const response = await fetch(getJob.endpoint, {
         method: "GET",
         headers: {
@@ -173,6 +169,14 @@ async function getData(getJob){
         },
     })
     const json = await response.json();
+    return json
+}
+
+async function getData(getJob){
+    console.log('esto es lo quie entra en la funcion del cron')
+    console.log(JSON.stringify(getJob))
+    var uniqueSensorID = getUniqueSensorID(getJob)
+    const json = await getDataEndpoint(getJob)
  
     //Revisar si el dato esta en la cache
     client.get(uniqueSensorID, (error, rep)=> {                
@@ -479,16 +483,15 @@ router.put('/editSensorEndpoint/', jsonParser, function(req,res,next){
     var uniqueSensorID = getUniqueSensorID(req.body)
     deleteSensorEndpoint(uniqueSensorID)
     var endpoint = createFinalEndpoint(req.body)
-    const response = await fetch(endpoint, {
-        method: "GET",
-        headers: {
-            "Content-type": "application/json",
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8"
-        },
-    })
-    const json = await response.json();
-    client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
+    const recievedJson;
+    try {
+        recievedJson = await getDataEndpoint(req.body)
+    }
+    catch (e){
+        next(e)
+    }
+  
+    client.set(uniqueSensorID, JSON.stringify(recievedJson),(error, result)=> { 
         if(error){                                                
             console.log('nope', error)                           
         }
