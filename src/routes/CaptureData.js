@@ -482,10 +482,10 @@ This function is used by devices that can post directly to the cloud service lik
 router.put('/editSensorEndpoint/', jsonParser, function(req,res,next){    
     var uniqueSensorID = getUniqueSensorID(req.body)
     deleteSensorEndpoint(uniqueSensorID)
-    var endpoint = createFinalEndpoint(req.body)
+    var endpoint = {endpoint: createFinalEndpoint(req.body)}
     var recievedJson = null
     try {
-        recievedJson = getDataEndpoint(req.body)
+        recievedJson = getDataEndpoint(endpoint)
         client.set(uniqueSensorID, JSON.stringify(recievedJson),(error, result)=> { 
             if(error){                                                
                 console.log('nope', error)                           
