@@ -185,8 +185,9 @@ async function getData(getJob){
         if(error){                                                 
             console.log('nope', error)                      
             return;                
-        }                 
-        if(rep && rep!== null){  
+        }  
+        console.log(typeof(rep))               
+        if(rep){  
             //Lo que esta en el cache       
             console.log('se encontro en el cache lo siguiente: ')
             console.log(rep)                   
