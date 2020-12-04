@@ -219,6 +219,8 @@ async function getData(getJob){
             */
            console.log('hay watch parameters?')
            console.log(getJob.watch_parameters)
+           console.log(typeof(getJob.watch_parameters))
+
            if(getJob.watch_parameters !== null){
             var watch_parameters_json;
             if(getJob.watch_parameters !== "object"){
