@@ -219,10 +219,12 @@ async function getData(getJob){
             */
            console.log('hay watch parameters?')
            console.log(getJob.watch_parameters)
+           console.log('estoy adentro de getData')
            console.log(typeof(getJob.watch_parameters))
 
            if(getJob.watch_parameters !== null){
             var watch_parameters_json;
+            console.log(getJob.watch_parameters !== "object")
             if(getJob.watch_parameters !== "object"){
                  watch_parameters_json = JSON.parse(getJob.watch_parameters) 
             }
@@ -236,6 +238,7 @@ async function getData(getJob){
             var parameters = watch_parameters_json.parameters
             //En repJsonFormat esta lo del cache
             //En json esta lo obtenido desde la api
+            console.log("vamos a ver las comparasions, operations y parameters: ")
             console.log(comparisons)
             console.log(operations)
             console.log(parameters)
