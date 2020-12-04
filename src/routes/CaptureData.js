@@ -485,7 +485,7 @@ router.put('/editSensorEndpoint/', jsonParser, function(req,res,next){
     var endpoint = createFinalEndpoint(req.body)
     var recievedJson = null
     try {
-        recievedJson = await getDataEndpoint(req.body)
+        recievedJson = getDataEndpoint(req.body)
     }
     catch (e){
         next(e)
