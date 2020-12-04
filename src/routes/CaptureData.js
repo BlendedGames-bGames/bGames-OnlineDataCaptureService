@@ -486,27 +486,31 @@ router.put('/editSensorEndpoint/', jsonParser, function(req,res,next){
     var recievedJson = null
     try {
         recievedJson = getDataEndpoint(req.body)
+        client.set(uniqueSensorID, JSON.stringify(recievedJson),(error, result)=> { 
+            if(error){                                                
+                console.log('nope', error)                           
+            }
+            else{
+                console.log('after client.set result is', result);
+                console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(recievedJson) );
+            }
+        }) 
+    
+        createSensorEndpoint(req.body)
+        
+    
+        res.sendStatus(200).json({
+            status: `Sensor endpoint ${req.body} edition succesful!`
+          });
     }
     catch (e){
         next(e)
+        res.sendStatus(500).json({
+            status: `Sensor endpoint ${req.body} nope`
+          });
     }
   
-    client.set(uniqueSensorID, JSON.stringify(recievedJson),(error, result)=> { 
-        if(error){                                                
-            console.log('nope', error)                           
-        }
-        else{
-            console.log('after client.set result is', result);
-            console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(json) );
-        }
-    }) 
-
-    createSensorEndpoint(req.body)
     
-
-    res.sendStatus(200).json({
-        status: `Sensor endpoint ${req.body} edition succesful!`
-      });
 
 })
 /*
