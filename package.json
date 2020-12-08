@@ -10,6 +10,7 @@
   "author": "Grybyus",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.0",
     "body-parser": "^1.19.0",
     "chess-web-api": "^1.0.13",
     "cron": "^1.8.2",

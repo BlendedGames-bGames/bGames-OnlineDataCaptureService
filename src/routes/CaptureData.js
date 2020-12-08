@@ -4,6 +4,7 @@ const router = express.Router();
 var http = require('http');
 const qs = require('querystring');
 const fetch = require('node-fetch');
+const axios = require('axios').default;
 
 var bodyParser =require('body-parser');
 
@@ -40,61 +41,51 @@ let redis = new Redis(redis_url);
     }
 */
 
-const mysqlConnection = require('../database');
-const { Console } = require('console');
 var getAPIArray = []
 
+sensorInitialization()
 
-var id = 1;
-try {mysqlConnection.query('SELECT `playerss`.`id_players` FROM `playerss`', function(err,rows,fields){
-    if(!err){
-        console.log(rows)
-        var thisaux = "";
-        for (let index = 0; index < rows.length-1; index++) {
-            thisaux += rows[index].id_players+",";
+async function sensorInitialization(){
+    var options = {
+        host : 'bgames-sensormanagement.herokuapp.com',
+        path: ('/sensor_endpoints_activated')       
+    };
+    var url = "https://"+options.host + options.path;
+    console.log("URL "+url);
+    // construct the URL to post to a publication
+    const MEDIUM_POST_URL = url;
+    try {
+        const response = await axios.get(MEDIUM_POST_URL);
+        const data = response.data
+        console.log(data)
+        var apiGetArray = []
+        var individualEndpoint;
+        for (const row of data){
+            individualEndpoint = createFullEndpoint(row)
+            apiGetArray.push(individualEndpoint)
         }
-        thisaux += rows[rows.length-1].id_players;
-        console.log(thisaux)
-        var select = 'SELECT DISTINCT `playerss`.`id_players`, `online_sensor`.`id_online_sensor`,`sensor_endpoint`.`id_sensor_endpoint`, `playerss_online_sensor`.`tokens`, `online_sensor`.`base_url`, `sensor_endpoint`.`url_endpoint`, `sensor_endpoint`.`token_parameters`, `sensor_endpoint`.`specific_parameters`, `sensor_endpoint`.`watch_parameters`,`sensor_endpoint`.`schedule_time` '
-        var from = 'FROM `playerss` '
-        var join = 'JOIN `playerss_online_sensor` ON `playerss`.`id_players` = `playerss_online_sensor`.`id_players`     JOIN `online_sensor` ON `online_sensor`.`id_online_sensor` = `playerss_online_sensor`.`id_online_sensor` JOIN `sensor_endpoint` ON `sensor_endpoint`.`sensor_endpoint_id_online_sensor` = `online_sensor`.`id_online_sensor` '
-        var where = 'WHERE `playerss`.`id_players` IN('+thisaux+') ' 
-        var and = 'AND `online_sensor`.`activated` = 1 AND`sensor_endpoint`.`activated` = 1'
-        var query = select+from+join+where+and
-        mysqlConnection.query(query, function(err2,rows2,fields2){
-            if (!err2){
-                console.log(rows2);
-                var apiGetArray = []
-                var individualEndpoint;
-                for (const row of rows2){
-                    individualEndpoint = createFullEndpoint(row)
-                    apiGetArray.push(individualEndpoint)
-                }
-                schedulingOnlineData(apiGetArray)
-            } else {
-                console.log(err);
-            }
-        });
+        schedulingOnlineData(apiGetArray)
         
-    } else {
-        console.log(err);
+    } 
+    catch (error) {
+        console.error(error);
     }
     
-});
-} catch(ex) {
-    console.log(ex)
+
 }
+  
+
 
 function getUniqueSensorID(sensor){    
-    console.log(sensor.id_online_sensor.toString())
+    console.log(sensor.sensor_endpoint_id_online_sensor.toString())
     console.log(sensor.id_sensor_endpoint.toString())
     //Cuando se crea un sensor_point en el front
     if(sensor.id_player === undefined){
-        return sensor.id_players.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
+        return sensor.id_players.toString()+sensor.sensor_endpoint_id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
 
     }
     else{
-        return sensor.id_player.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
+        return sensor.id_player.toString()+sensor.sensor_endpoint_id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
 
     }
     
@@ -147,7 +138,7 @@ function createFullEndpoint(row){
       
     individualEndpoint ={  
         "id_player": row.id_players,   
-        "id_online_sensor": row.id_online_sensor,
+        "sensor_endpoint_id_online_sensor": row.sensor_endpoint_id_online_sensor,
         "id_sensor_endpoint": row.id_sensor_endpoint,
         "endpoint": createFinalEndpoint(row),
         "watch_parameters":row.watch_parameters,                                             
