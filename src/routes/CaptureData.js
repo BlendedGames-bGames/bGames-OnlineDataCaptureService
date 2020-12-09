@@ -384,7 +384,7 @@ async function getData(getJob){
                 // construct the URL to post to a publication
                 const MEDIUM_POST_URL = url;
                 var dataChanges ={  
-                    "id_player": getJob.id_players,   
+                    "id_player": getJob.id_player,   
                     "sensor_endpoint_id_online_sensor": getJob.sensor_endpoint_id_online_sensor,
                     "id_sensor_endpoint": getJob.id_sensor_endpoint,
                     "watch_parameters":getJob.watch_parameters,                                             
