@@ -223,163 +223,184 @@ async function getData(getJob){
            console.log(typeof(getJob.watch_parameters))
 
            if(getJob.watch_parameters !== null){
-            var watch_parameters_json;
-            console.log(getJob.watch_parameters !== "object")
-            if(typeof(getJob.watch_parameters) !== "object"){
-                 watch_parameters_json = JSON.parse(getJob.watch_parameters) 
-            }
-            else{
-                watch_parameters_json = getJob.watch_parameters
-            }
-               
-               
-            var comparisons = watch_parameters_json.comparisons
-            var operations = watch_parameters_json.operations
-            var parameters = watch_parameters_json.parameters
-            //En repJsonFormat esta lo del cache
-            //En json esta lo obtenido desde la api
-            console.log("vamos a ver las comparasions, operations y parameters: ")
-            console.log(comparisons)
-            console.log(operations)
-            console.log(parameters)
-            var repValues = []
-            var jsonValues = []
-            for (const parameter of parameters){
-                //Si es esta anidado, es decir, si tiene comas
-                console.log('este es el parametro a ver ', parameter)
-                if(/(,)/.test(parameter)){
-                    console.log('el ', parameter)
-                    console.log('esta anidado')
-
-                    //
-                    var res = parameter.split(","); // Ej: ['chess_daily','record','win']
-                    var actualData = json
-                    var cacheData = repJsonFormat
-                    for(let i = 0; i<res.length; i++){
-                        actualData = actualData[res[i]]
-                        cacheData = cacheData[res[i]]
-
-                    }
-                    jsonValues.push(actualData)
-                    repValues.push(cacheData)
+                var watch_parameters_json;
+                console.log(getJob.watch_parameters !== "object")
+                if(typeof(getJob.watch_parameters) !== "object"){
+                    watch_parameters_json = JSON.parse(getJob.watch_parameters) 
                 }
                 else{
-                    //El dato no esta anidado, es decir, esta en una llave al inicio
-                    jsonValues.push(json[parameter])
-                    repValues.push(repJsonFormat[parameter])
-
+                    watch_parameters_json = getJob.watch_parameters
                 }
-            }
-            console.log(repValues)
-            console.log(jsonValues)
-            var arrayChanges = []
-            for (let j= 0; j<parameters.length; j++){
-                /* Ej 
-                    comparasions = ['>']
-                    operations =  ['-'] 
-                    jsonValues = [202]
-                    repValues = [200]
-                    
-                */
-               var boolResult;
-               switch (comparisons[j]) {
-                    case '>':
-                        if(jsonValues[j] > repValues[j] ){
-                            boolResult = true
-                        }
-                        else{
-                            boolResult = false
-                        }
-                       
-                       
-                    break;
-                    case '<':
-                        if(jsonValues[j] < repValues[j] ){
-                            boolResult = true
-                        }
-                        else{
-                            boolResult = false
-                        }
-                    
-                    break;
-                    case '>=':
-                        if(jsonValues[j] >= repValues[j] ){
-                            boolResult = true
-                        }
-                        else{
-                            boolResult = false
-                        }
-                    
-                    break;
-                    case '<=':
-                        if(jsonValues[j] <= repValues[j] ){
-                            boolResult = true
-                        }
-                        else{
-                            boolResult = false
-                        }
-                    
-                    break;
-                    case '===':
-                        if(jsonValues[j] === repValues[j] ){
-                            boolResult = true
-                        }
-                        else{
-                            boolResult = false
-                        }
-                    
-                    break;
-                    case '!==':
-                        if(jsonValues[j] !== repValues[j] ){
-                            boolResult = true
-                        }
-                        else{
-                            boolResult = false
-                        }
-                    
-                    break;
-               }
-               //Existe un cambio
-               if(boolResult){
-                    var changed;
-                    switch (operations[j]) {
-                        case '+':
-                            changed = jsonValues[j] + repValues[j]                      
-                        break;
-                        case '-':
-                            changed = jsonValues[j] - repValues[j]
-                        break;
-                        case '*':
-                            changed = jsonValues[j] * repValues[j]
-                        break;
-                        case '/':
-                            if(repValues[j]>0){
-                                changed = jsonValues[j] / repValues[j]
-                            }
-                        break;
-                    }
-                    arrayChanges.push(changed)
-                    client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
-                        if(error){                                                
-                            console.log('nope', error)                           
-                        }
-                        else{
-                            console.log('after client.set result is', result);
-                            console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(json) );
-                        }
-                    }) 
+                
+                
+                var comparisons = watch_parameters_json.comparisons
+                var operations = watch_parameters_json.operations
+                var parameters = watch_parameters_json.parameters
+                //En repJsonFormat esta lo del cache
+                //En json esta lo obtenido desde la api
+                console.log("vamos a ver las comparasions, operations y parameters: ")
+                console.log(comparisons)
+                console.log(operations)
+                console.log(parameters)
+                var repValues = []
+                var jsonValues = []
+                for (const parameter of parameters){
+                    //Si es esta anidado, es decir, si tiene comas
+                    console.log('este es el parametro a ver ', parameter)
+                    if(/(,)/.test(parameter)){
+                        console.log('el ', parameter)
+                        console.log('esta anidado')
 
-               }
-            }
-            
-            console.log('algun cambio?')
-            console.log(arrayChanges.length)
+                        //
+                        var res = parameter.split(","); // Ej: ['chess_daily','record','win']
+                        var actualData = json
+                        var cacheData = repJsonFormat
+                        for(let i = 0; i<res.length; i++){
+                            actualData = actualData[res[i]]
+                            cacheData = cacheData[res[i]]
+
+                        }
+                        jsonValues.push(actualData)
+                        repValues.push(cacheData)
+                    }
+                    else{
+                        //El dato no esta anidado, es decir, esta en una llave al inicio
+                        jsonValues.push(json[parameter])
+                        repValues.push(repJsonFormat[parameter])
+
+                    }
+                }
+                console.log(repValues)
+                console.log(jsonValues)
+                var arrayChanges = []
+                for (let j= 0; j<parameters.length; j++){
+                    /* Ej 
+                        comparasions = ['>']
+                        operations =  ['-'] 
+                        jsonValues = [202]
+                        repValues = [200]
+                        
+                    */
+                    var boolResult;
+                    switch (comparisons[j]) {
+                            case '>':
+                                if(jsonValues[j] > repValues[j] ){
+                                    boolResult = true
+                                }
+                                else{
+                                    boolResult = false
+                                }
+                            
+                            
+                            break;
+                            case '<':
+                                if(jsonValues[j] < repValues[j] ){
+                                    boolResult = true
+                                }
+                                else{
+                                    boolResult = false
+                                }
+                            
+                            break;
+                            case '>=':
+                                if(jsonValues[j] >= repValues[j] ){
+                                    boolResult = true
+                                }
+                                else{
+                                    boolResult = false
+                                }
+                            
+                            break;
+                            case '<=':
+                                if(jsonValues[j] <= repValues[j] ){
+                                    boolResult = true
+                                }
+                                else{
+                                    boolResult = false
+                                }
+                            
+                            break;
+                            case '===':
+                                if(jsonValues[j] === repValues[j] ){
+                                    boolResult = true
+                                }
+                                else{
+                                    boolResult = false
+                                }
+                            
+                            break;
+                            case '!==':
+                                if(jsonValues[j] !== repValues[j] ){
+                                    boolResult = true
+                                }
+                                else{
+                                    boolResult = false
+                                }
+                            
+                            break;
+                    }
+                    //Existe un cambio
+                    if(boolResult){
+                            var changed;
+                            switch (operations[j]) {
+                                case '+':
+                                    changed = jsonValues[j] + repValues[j]                      
+                                break;
+                                case '-':
+                                    changed = jsonValues[j] - repValues[j]
+                                break;
+                                case '*':
+                                    changed = jsonValues[j] * repValues[j]
+                                break;
+                                case '/':
+                                    if(repValues[j]>0){
+                                        changed = jsonValues[j] / repValues[j]
+                                    }
+                                break;
+                            }
+                            arrayChanges.push(changed)
+                            
+
+                    }
+                }
+                
+                console.log('algun cambio?')
+                console.log(arrayChanges.length)
+                client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
+                    if(error){                                                
+                        console.log('nope', error)                           
+                    }
+                    else{
+                        console.log('after client.set result is', result);
+                        console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(json) );
+                    }
+                })
+                var options = {
+                    host : 'bgames-standardatt.herokuapp.com',
+                    path: ('/standard_attributes_apis')       
+                };
+                var url = "https://"+options.host + options.path;
+                console.log("URL "+url);
+                // construct the URL to post to a publication
+                const MEDIUM_POST_URL = url;
+                var dataChanges ={  
+                    "id_player": getJob.id_players,   
+                    "sensor_endpoint_id_online_sensor": getJob.sensor_endpoint_id_online_sensor,
+                    "id_sensor_endpoint": getJob.id_sensor_endpoint,
+                    "watch_parameters":getJob.watch_parameters,                                             
+                    "data_changes": arrayChanges
+                }
+                try {
+                    const response = axios.post(MEDIUM_POST_URL,dataChanges);
+                    console.log(response)
+                    
+                } 
+                catch (error) {
+                    console.error(error);
+                } 
 
             
            }
-           console.log('terminep')
-           //Actualizar el cache con la nueva informacion
-           
            
 
         }                  
