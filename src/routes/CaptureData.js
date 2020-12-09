@@ -367,38 +367,41 @@ async function getData(getJob){
                 console.log('algun cambio?')
                 console.log(arrayChanges.length)
                 for(let i = 0 ; i<arrayChanges.length; i++) console.log(arrayChanges[i])
-                client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
-                    if(error){                                                
-                        console.log('nope', error)                           
+                if(arrayChanges.length >=1){
+                    client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
+                        if(error){                                                
+                            console.log('nope', error)                           
+                        }
+                        else{
+                            console.log('after client.set result is', result);
+                            console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(json) );
+                        }
+                    })
+                    var options = {
+                        host : 'bgames-standardatt.herokuapp.com',
+                        path: ('/standard_attributes_apis')       
+                    };
+                    var url = "https://"+options.host + options.path;
+                    console.log("URL "+url);
+                    // construct the URL to post to a publication
+                    const MEDIUM_POST_URL = url;
+                    var dataChanges ={  
+                        "id_player": getJob.id_player,   
+                        "sensor_endpoint_id_online_sensor": getJob.sensor_endpoint_id_online_sensor,
+                        "id_sensor_endpoint": getJob.id_sensor_endpoint,
+                        "watch_parameters":getJob.watch_parameters,                                             
+                        "data_changes": arrayChanges
                     }
-                    else{
-                        console.log('after client.set result is', result);
-                        console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(json) );
-                    }
-                })
-                var options = {
-                    host : 'bgames-standardatt.herokuapp.com',
-                    path: ('/standard_attributes_apis')       
-                };
-                var url = "https://"+options.host + options.path;
-                console.log("URL "+url);
-                // construct the URL to post to a publication
-                const MEDIUM_POST_URL = url;
-                var dataChanges ={  
-                    "id_player": getJob.id_player,   
-                    "sensor_endpoint_id_online_sensor": getJob.sensor_endpoint_id_online_sensor,
-                    "id_sensor_endpoint": getJob.id_sensor_endpoint,
-                    "watch_parameters":getJob.watch_parameters,                                             
-                    "data_changes": arrayChanges
+                    try {
+                        const response = axios.post(MEDIUM_POST_URL,dataChanges);
+                        console.log(response)
+                        
+                    } 
+                    catch (error) {
+                        console.error(error);
+                    } 
                 }
-                try {
-                    const response = axios.post(MEDIUM_POST_URL,dataChanges);
-                    console.log(response)
-                    
-                } 
-                catch (error) {
-                    console.error(error);
-                } 
+                
 
             
            }
