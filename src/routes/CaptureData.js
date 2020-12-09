@@ -366,6 +366,7 @@ async function getData(getJob){
                 
                 console.log('algun cambio?')
                 console.log(arrayChanges.length)
+                for(let i = 0 ; i<arrayChanges.length; i++) console.log(arrayChanges[i])
                 client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
                     if(error){                                                
                         console.log('nope', error)                           
