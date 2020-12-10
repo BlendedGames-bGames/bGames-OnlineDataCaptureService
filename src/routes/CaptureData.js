@@ -10,7 +10,10 @@ var bodyParser =require('body-parser');
 
 // create application/json parser
 var jsonParser = bodyParser.json()
- 
+
+// Lodash array _isEqual method for comparing 2 jsons (useful for comparing redis cache and recieved json from apis)
+var _ = require('lodash');
+
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -140,6 +143,8 @@ function createFullEndpoint(row){
         "id_player": row.id_players,   
         "sensor_endpoint_id_online_sensor": row.sensor_endpoint_id_online_sensor,
         "id_sensor_endpoint": row.id_sensor_endpoint,
+        "input_source_sensor": row.name_sensor,
+        "input_source_endpoint": row.name_endpoint,
         "endpoint": createFinalEndpoint(row),
         "watch_parameters":row.watch_parameters,                                             
         "schedule_time": row.schedule_time
@@ -184,7 +189,7 @@ async function getData(getJob){
             //Lo que esta en el cache       
             console.log('se encontro en el cache lo siguiente: ')
             console.log(rep)                   
-            var repJsonFormat = JSON.parse(rep)               
+            var repJsonFormat = JSON.parse(rep)   
             //Tipo de operaciones de comparacion existentes: < > <= >= === !== 
             //Tipo de operaciones aritmeticas existentes: + - / *
             // El operando de la izquierda es el que se obtiene de la api y el de la derecha es el existente
@@ -389,6 +394,8 @@ async function getData(getJob){
                         "id_player": getJob.id_player,   
                         "sensor_endpoint_id_online_sensor": getJob.sensor_endpoint_id_online_sensor,
                         "id_sensor_endpoint": getJob.id_sensor_endpoint,
+                        "input_source_sensor": getJob.input_source_sensor,
+                        "input_source_endpoint": getJob.input_source_endpoint,
                         "watch_parameters":getJob.watch_parameters,                                             
                         "data_changes": arrayChanges
                     }
