@@ -11,8 +11,6 @@ var bodyParser =require('body-parser');
 // create application/json parser
 var jsonParser = bodyParser.json()
 
-// Lodash array _isEqual method for comparing 2 jsons (useful for comparing redis cache and recieved json from apis)
-var _ = require('lodash');
 
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
