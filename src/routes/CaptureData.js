@@ -344,25 +344,27 @@ async function getData(getJob){
                     }
                     //Existe un cambio
                     if(boolResult){
-                            var changed;
-                            switch (operations[j]) {
-                                case '+':
-                                    changed = jsonValues[j] + repValues[j]                      
-                                break;
-                                case '-':
-                                    changed = jsonValues[j] - repValues[j]
-                                break;
-                                case '*':
-                                    changed = jsonValues[j] * repValues[j]
-                                break;
-                                case '/':
-                                    if(repValues[j]>0){
-                                        changed = jsonValues[j] / repValues[j]
-                                    }
-                                break;
-                            }
-                            arrayChanges.push(changed)
-                            
+                        var changed;
+                        switch (operations[j]) {
+                            case '+':
+                                changed = jsonValues[j] + repValues[j]                      
+                            break;
+                            case '-':
+                                changed = jsonValues[j] - repValues[j]
+                            break;
+                            case '*':
+                                changed = jsonValues[j] * repValues[j]
+                            break;
+                            case '/':
+                                if(repValues[j]>0){
+                                    changed = jsonValues[j] / repValues[j]
+                                }
+                            break;
+                        }
+                        arrayChanges.push(changed)
+                    }
+                    else{
+                        arrayChanges.push(0)
 
                     }
                 }
