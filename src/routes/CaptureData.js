@@ -141,8 +141,6 @@ function createFullEndpoint(row){
         "id_player": row.id_players,   
         "sensor_endpoint_id_online_sensor": row.sensor_endpoint_id_online_sensor,
         "id_sensor_endpoint": row.id_sensor_endpoint,
-        "input_source_sensor": row.name_sensor,
-        "input_source_endpoint": row.name_endpoint,
         "endpoint": createFinalEndpoint(row),
         "watch_parameters":row.watch_parameters,                                             
         "schedule_time": row.schedule_time
@@ -394,8 +392,6 @@ async function getData(getJob){
                         "id_player": getJob.id_player,   
                         "sensor_endpoint_id_online_sensor": getJob.sensor_endpoint_id_online_sensor,
                         "id_sensor_endpoint": getJob.id_sensor_endpoint,
-                        "input_source_sensor": getJob.input_source_sensor,
-                        "input_source_endpoint": getJob.input_source_endpoint,
                         "watch_parameters":getJob.watch_parameters,                                             
                         "data_changes": arrayChanges
                     }
