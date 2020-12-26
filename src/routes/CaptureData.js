@@ -257,8 +257,15 @@ async function getData(getJob){
                         var actualData = json
                         var cacheData = repJsonFormat
                         for(let i = 0; i<res.length; i++){
-                            actualData = actualData[res[i]]
-                            cacheData = cacheData[res[i]]
+                            if(actualData === undefined || cacheData === undefined ){
+                                actualData = 0
+                                cacheData = 0
+                                break;                                
+                            }
+                            else{
+                                actualData = actualData[res[i]]
+                                cacheData = cacheData[res[i]]
+                            }
 
                         }
                         jsonValues.push(actualData)
