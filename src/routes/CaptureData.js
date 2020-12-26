@@ -281,6 +281,7 @@ async function getData(getJob){
                 console.log(repValues)
                 console.log(jsonValues)
                 var arrayChanges = []
+                console.log(`El largo de las comparaciones es ${parameters.length}`)
                 for (let j= 0; j<parameters.length; j++){
                     /* Ej 
                         comparasions = ['>']
@@ -290,6 +291,10 @@ async function getData(getJob){
                         
                     */
                     var boolResult;
+                    console.log(`La comparacion que se realizara ahora es: ${comparisons[j]}`)
+                    console.log(`Entre el valor: ${jsonValues[j]}`)
+                    console.log(`y el valor: ${repValues[j]}`)
+
                     switch (comparisons[j]) {
                             case '>':
                                 if(jsonValues[j] > repValues[j] ){
@@ -348,6 +353,8 @@ async function getData(getJob){
                             break;
                     }
                     //Existe un cambio
+                    console.log(`Hubo un cambio? ${boolResult}`)
+
                     if(boolResult){
                         var changed;
                         switch (operations[j]) {
