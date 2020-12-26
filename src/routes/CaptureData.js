@@ -78,15 +78,15 @@ async function sensorInitialization(){
 
 
 function getUniqueSensorID(sensor){    
-    console.log(sensor.sensor_endpoint_id_online_sensor.toString())
+    console.log(sensor.id_online_sensor.toString())
     console.log(sensor.id_sensor_endpoint.toString())
     //Cuando se crea un sensor_point en el front
     if(sensor.id_player === undefined){
-        return sensor.id_players.toString()+sensor.sensor_endpoint_id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
+        return sensor.id_players.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
 
     }
     else{
-        return sensor.id_player.toString()+sensor.sensor_endpoint_id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
+        return sensor.id_player.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
 
     }
     
@@ -139,7 +139,7 @@ function createFullEndpoint(row){
       
     individualEndpoint ={  
         "id_player": row.id_players,   
-        "sensor_endpoint_id_online_sensor": row.sensor_endpoint_id_online_sensor,
+        "id_online_sensor": row.id_online_sensor,
         "id_sensor_endpoint": row.id_sensor_endpoint,
         "endpoint": createFinalEndpoint(row),
         "watch_parameters":row.watch_parameters,                                             
@@ -390,7 +390,6 @@ async function getData(getJob){
                     const MEDIUM_POST_URL = url;
                     var dataChanges ={  
                         "id_player": getJob.id_player,   
-                        "sensor_endpoint_id_online_sensor": getJob.sensor_endpoint_id_online_sensor,
                         "id_sensor_endpoint": getJob.id_sensor_endpoint,
                         "watch_parameters":getJob.watch_parameters,                                             
                         "data_changes": arrayChanges
