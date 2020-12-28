@@ -130,24 +130,24 @@ function createFinalEndpoint(row){
 
     }
     console.log("\n este es el specific template y de parameters \n")
-    console.log(row.specific_paramaters_template)
-    console.log(row.specific_paramaters)
-    if(row.specific_paramaters_template !== null && row.specific_paramaters !== null){
-        var specific_paramaters;
-        var specific_paramaters_template;
+    console.log(row.specific_parameters_template)
+    console.log(row.specific_parameters)
+    if(row.specific_parameters_template !== null && row.specific_parameters !== null){
+        var specific_parameters;
+        var specific_parameters_template;
         //Si no es un json (cuando se saca de la db es un string)
-        if(typeof(row.specific_paramaters_template) !== "object" && typeof(row.specific_paramaters) !== "object"){
+        if(typeof(row.specific_parameters_template) !== "object" && typeof(row.specific_parameters) !== "object"){
 
-            specific_paramaters = JSON.parse(row.specific_paramaters_template)
-            specific_paramaters_template = JSON.parse(row.specific_paramaters)
+            specific_parameters = JSON.parse(row.specific_parameters)
+            specific_parameters_template = JSON.parse(row.specific_parameters_template)
         }
         else{
             //Si ya es un json (pasa en peticiones desde el front)
-            specific_paramaters = row.specific_paramaters_template
-            specific_paramaters_template = row.specific_paramaters
+            specific_parameters = row.specific_parameters
+            specific_parameters_template = row.specific_parameters_template
         }
-        var tokensKeys = Object.keys(specific_paramaters)
-        var parametersKeys = Object.keys(specific_paramaters_template)
+        var tokensKeys = Object.keys(specific_parameters)
+        var parametersKeys = Object.keys(specific_parameters_template)
         for(const tkey of tokensKeys){
             for(const pkey of parametersKeys){
                 console.log(tkey)
