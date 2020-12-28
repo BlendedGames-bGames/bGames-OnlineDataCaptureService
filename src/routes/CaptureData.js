@@ -153,8 +153,8 @@ function createFinalEndpoint(row){
                 console.log(tkey)
                 console.log(pkey)
                 if(tkey == pkey){
-                  tokenValue = tokens[tkey]
-                  parameterValue = token_parameters[tkey]
+                  tokenValue = specific_parameters[tkey]
+                  parameterValue = specific_parameters_template[tkey]
                   extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)
                   
                 }
@@ -163,8 +163,12 @@ function createFinalEndpoint(row){
         }
 
     }
+    console.log('the final endpoint is')
  
     finalEndpoint += extensionEndpoint
+
+    console.log(finalEndpoint)
+
     console.log(finalEndpoint)
     return finalEndpoint
 }
