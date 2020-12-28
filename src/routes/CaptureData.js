@@ -129,7 +129,9 @@ function createFinalEndpoint(row){
 
 
     }
-    
+    console.log("\n este es el specific template y de parameters \n")
+    console.log(row.specific_paramaters_template)
+    console.log(row.specific_paramaters)
     if(row.specific_paramaters_template !== null && row.specific_paramaters !== null){
         var specific_paramaters;
         var specific_paramaters_template;
