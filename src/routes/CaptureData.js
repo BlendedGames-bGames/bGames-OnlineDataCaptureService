@@ -128,7 +128,39 @@ function createFinalEndpoint(row){
         }
 
 
-    }                 
+    }
+    
+    if(row.specific_paramaters_template !== null && row.specific_paramaters !== null){
+        var specific_paramaters;
+        var specific_paramaters_template;
+        //Si no es un json (cuando se saca de la db es un string)
+        if(typeof(row.specific_paramaters_template) !== "object" && typeof(row.specific_paramaters) !== "object"){
+
+            specific_paramaters = JSON.parse(row.specific_paramaters_template)
+            specific_paramaters_template = JSON.parse(row.specific_paramaters)
+        }
+        else{
+            //Si ya es un json (pasa en peticiones desde el front)
+            specific_paramaters = row.specific_paramaters_template
+            specific_paramaters_template = row.specific_paramaters
+        }
+        var tokensKeys = Object.keys(specific_paramaters)
+        var parametersKeys = Object.keys(specific_paramaters_template)
+        for(const tkey of tokensKeys){
+            for(const pkey of parametersKeys){
+                console.log(tkey)
+                console.log(pkey)
+                if(tkey == pkey){
+                  tokenValue = tokens[tkey]
+                  parameterValue = token_parameters[tkey]
+                  extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)
+                  
+                }
+            }	
+        
+        }
+
+    }
  
     finalEndpoint += extensionEndpoint
     console.log(finalEndpoint)
