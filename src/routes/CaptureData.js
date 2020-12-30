@@ -283,7 +283,7 @@ async function getData(getJob){
                 console.log(parameters)
                 var repValues;
                 var jsonValues;
-                const results = access_parameters(parameters)
+                const results = access_parameters(parameters,json,repJsonFormat)
                 repValues = results.repValues
                 jsonValues = results.jsonValues
         
@@ -353,14 +353,14 @@ async function getData(getJob){
     
 }
 
-function access_parameters(parameters){
+function access_parameters(parameters,newInfo,cacheInfo){
     //En repJsonFormat esta lo del cache
     //En json esta lo obtenido desde la api
     console.log(parameters)
     var repValues = []
     var jsonValues = []
-    var actualData;
-    var cacheData;
+    var actualData = newInfo
+    var cacheData = cacheInfo
     for (const parameter of parameters){
 
         for(const access_element of parameter){
