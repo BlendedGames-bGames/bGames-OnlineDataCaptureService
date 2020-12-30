@@ -356,9 +356,6 @@ async function getData(getJob){
 function access_parameters(parameters){
     //En repJsonFormat esta lo del cache
     //En json esta lo obtenido desde la api
-    console.log("vamos a ver las comparasions, operations y parameters: ")
-    console.log(comparisons)
-    console.log(operations)
     console.log(parameters)
     var repValues = []
     var jsonValues = []
