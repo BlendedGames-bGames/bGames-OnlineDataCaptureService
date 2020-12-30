@@ -357,6 +357,8 @@ function access_parameters(parameters,newInfo,cacheInfo){
     //En repJsonFormat esta lo del cache
     //En json esta lo obtenido desde la api
     console.log(parameters)
+    console.log("Esto es lo que saque de informacion nueva ", newInfo)
+    console.log("Esto es lo que estaba en el cache", cacheInfo)
     var repValues = []
     var jsonValues = []
     var actualData = newInfo
@@ -367,6 +369,7 @@ function access_parameters(parameters,newInfo,cacheInfo){
             
             //Si es esta anidado, es decir, si tiene comas
             console.log('este es el parametro a ver: ', access_element)
+            console.log('Estoy en ', actualData)
 
             if(Number.isInteger(access_element) || isString(access_element)){
                 //Se accede a una llave
