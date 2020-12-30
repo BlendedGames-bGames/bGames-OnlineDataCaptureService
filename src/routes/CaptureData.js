@@ -281,148 +281,19 @@ async function getData(getJob){
                 console.log(comparisons)
                 console.log(operations)
                 console.log(parameters)
-                var repValues = []
-                var jsonValues = []
-                for (const parameter of parameters){
-                    //Si es esta anidado, es decir, si tiene comas
-                    console.log('este es el parametro a ver ', parameter)
-                    if(/(,)/.test(parameter)){
-                        console.log('el ', parameter)
-                        console.log('esta anidado')
-
-                        //
-                        var res = parameter.split(","); // Ej: ['chess_daily','record','win']
-                        var actualData = json
-                        var cacheData = repJsonFormat
-                        for(let i = 0; i<res.length; i++){
-                            if(actualData === undefined || cacheData === undefined ){
-                                actualData = 0
-                                cacheData = 0
-                                break;                                
-                            }
-                            else{
-                                actualData = actualData[res[i]]
-                                cacheData = cacheData[res[i]]
-                            }
-
-                        }
-                        jsonValues.push(actualData)
-                        repValues.push(cacheData)
-                    }
-                    else{
-                        //El dato no esta anidado, es decir, esta en una llave al inicio
-                        jsonValues.push(json[parameter])
-                        repValues.push(repJsonFormat[parameter])
-
-                    }
-                }
-                console.log(repValues)
-                console.log(jsonValues)
-                var arrayChanges = []
+                var repValues;
+                var jsonValues;
+                const results = access_parameters(parameters)
+                repValues = results.repValues
+                jsonValues = results.jsonValues
+        
+                var arrayChanges;
                 console.log(`El largo de las comparaciones es ${parameters.length}`)
-                for (let j= 0; j<parameters.length; j++){
-                    /* Ej 
-                        comparasions = ['>']
-                        operations =  ['-'] 
-                        jsonValues = [202]
-                        repValues = [200]
-                        
-                    */
-                    var boolResult;
-                    console.log(`La comparacion que se realizara ahora es: ${comparisons[j]}`)
-                    console.log(`Entre el valor: ${jsonValues[j]}`)
-                    console.log(`y el valor: ${repValues[j]}`)
-
-                    switch (comparisons[j]) {
-                            case '>':
-                                if(jsonValues[j] > repValues[j] ){
-                                    boolResult = true
-                                }
-                                else{
-                                    boolResult = false
-                                }
-                            
-                            
-                            break;
-                            case '<':
-                                if(jsonValues[j] < repValues[j] ){
-                                    boolResult = true
-                                }
-                                else{
-                                    boolResult = false
-                                }
-                            
-                            break;
-                            case '>=':
-                                if(jsonValues[j] >= repValues[j] ){
-                                    boolResult = true
-                                }
-                                else{
-                                    boolResult = false
-                                }
-                            
-                            break;
-                            case '<=':
-                                if(jsonValues[j] <= repValues[j] ){
-                                    boolResult = true
-                                }
-                                else{
-                                    boolResult = false
-                                }
-                            
-                            break;
-                            case '===':
-                                if(jsonValues[j] === repValues[j] ){
-                                    boolResult = true
-                                }
-                                else{
-                                    boolResult = false
-                                }
-                            
-                            break;
-                            case '!==':
-                                if(jsonValues[j] !== repValues[j] ){
-                                    boolResult = true
-                                }
-                                else{
-                                    boolResult = false
-                                }
-                            
-                            break;
-                    }
-                    //Existe un cambio
-                    console.log(`Hubo un cambio? ${boolResult}`)
-
-                    if(boolResult){
-                        var changed;
-                        switch (operations[j]) {
-                            case '+':
-                                changed = jsonValues[j] + repValues[j]                      
-                            break;
-                            case '-':
-                                changed = jsonValues[j] - repValues[j]
-                            break;
-                            case '*':
-                                changed = jsonValues[j] * repValues[j]
-                            break;
-                            case '/':
-                                if(repValues[j]>0){
-                                    changed = jsonValues[j] / repValues[j]
-                                }
-                            break;
-                        }
-                        arrayChanges.push(changed)
-                    }
-                    else{
-                        arrayChanges.push(0)
-
-                    }
-                }
+                arrayChanges = values_comparisons(repValues,jsonValues,comparisons,parameters.length)
                 
-                console.log('algun cambio?')
-                console.log(arrayChanges.length)
                 for(let i = 0 ; i<arrayChanges.length; i++) console.log(arrayChanges[i])
-                if(arrayChanges.length >=1){
+                //Si hubo algun cambio en las variables
+                if(checkChanges(arrayChanges)){
                     client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
                         if(error){                                                
                             console.log('nope', error)                           
@@ -454,6 +325,7 @@ async function getData(getJob){
                     catch (error) {
                         console.error(error);
                     } 
+
                 }
                 
 
@@ -480,6 +352,175 @@ async function getData(getJob){
 
     
 }
+
+function access_parameters(parameters){
+    //En repJsonFormat esta lo del cache
+    //En json esta lo obtenido desde la api
+    console.log("vamos a ver las comparasions, operations y parameters: ")
+    console.log(comparisons)
+    console.log(operations)
+    console.log(parameters)
+    var repValues = []
+    var jsonValues = []
+    for (const parameter of parameters){
+
+        for(const access_element of parameter){
+            
+            //Si es esta anidado, es decir, si tiene comas
+            console.log('este es el parametro a ver: ', access_element)
+
+            if(Number.isInteger(access_element) || isString(access_element)){
+                //Se accede a una llave
+                actualData = actualData[access_element]
+                cacheData = cacheData[access_element]
+            }
+            else{
+                //Se hizo un length
+                actualData = actualData.length
+                cacheData = cacheData.length
+            }
+
+        }
+        
+        jsonValues.push(actualData)
+        repValues.push(cacheData)
+
+    }
+    
+
+    const result = {
+        "jsonValues": jsonValues,
+        "repValues": repValues
+    }
+    return result
+}
+
+
+function isString(x) {
+    return Object.prototype.toString.call(x) === "[object String]"
+}
+function checkChanges(arrayChanges){
+    const array1 = [0,0,0,9];
+    let bool = false
+    arrayChanges.forEach((change) => {
+            if(change !== 0){
+                bool = true
+            }
+        }
+    );
+    return bool
+}
+
+function values_comparisons(repValues,jsonValues,comparisons,length){
+    console.log(repValues)
+    console.log(jsonValues)
+    var arrayChanges = []
+    console.log(`El largo de las comparaciones es ${parameters.length}`)
+    for (let j= 0; j<length; j++){
+        /* Ej 
+            comparasions = ['>']
+            operations =  ['-'] 
+            jsonValues = [202]
+            repValues = [200]
+            
+        */
+        var boolResult;
+        console.log(`La comparacion que se realizara ahora es: ${comparisons[j]}`)
+        console.log(`Entre el valor: ${jsonValues[j]}`)
+        console.log(`y el valor: ${repValues[j]}`)
+
+        switch (comparisons[j]) {
+                case '>':
+                    if(jsonValues[j] > repValues[j] ){
+                        boolResult = true
+                    }
+                    else{
+                        boolResult = false
+                    }
+                
+                
+                break;
+                case '<':
+                    if(jsonValues[j] < repValues[j] ){
+                        boolResult = true
+                    }
+                    else{
+                        boolResult = false
+                    }
+                
+                break;
+                case '>=':
+                    if(jsonValues[j] >= repValues[j] ){
+                        boolResult = true
+                    }
+                    else{
+                        boolResult = false
+                    }
+                
+                break;
+                case '<=':
+                    if(jsonValues[j] <= repValues[j] ){
+                        boolResult = true
+                    }
+                    else{
+                        boolResult = false
+                    }
+                
+                break;
+                case '===':
+                    if(jsonValues[j] === repValues[j] ){
+                        boolResult = true
+                    }
+                    else{
+                        boolResult = false
+                    }
+                
+                break;
+                case '!==':
+                    if(jsonValues[j] !== repValues[j] ){
+                        boolResult = true
+                    }
+                    else{
+                        boolResult = false
+                    }
+                
+                break;
+        }
+        //Existe un cambio
+        console.log(`Hubo un cambio? ${boolResult}`)
+
+        if(boolResult){
+            var changed;
+            switch (operations[j]) {
+                case '+':
+                    changed = jsonValues[j] + repValues[j]                      
+                break;
+                case '-':
+                    changed = jsonValues[j] - repValues[j]
+                break;
+                case '*':
+                    changed = jsonValues[j] * repValues[j]
+                break;
+                case '/':
+                    if(repValues[j]>0){
+                        changed = jsonValues[j] / repValues[j]
+                    }
+                break;
+            }
+            arrayChanges.push(changed)
+        }
+        else{
+            arrayChanges.push(0)
+
+        }
+    }
+    
+    console.log('algun cambio?')
+    return arrayChanges
+}
+
+
+
 
 function runningJobs(getJob) {
 
