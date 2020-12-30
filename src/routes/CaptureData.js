@@ -359,6 +359,8 @@ function access_parameters(parameters){
     console.log(parameters)
     var repValues = []
     var jsonValues = []
+    var actualData;
+    var cacheData;
     for (const parameter of parameters){
 
         for(const access_element of parameter){
