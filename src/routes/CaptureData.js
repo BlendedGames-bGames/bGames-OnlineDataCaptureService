@@ -361,10 +361,9 @@ function access_parameters(parameters,newInfo,cacheInfo){
     console.log("Esto es lo que estaba en el cache", cacheInfo)
     var repValues = []
     var jsonValues = []
-    var actualData = newInfo
-    var cacheData = cacheInfo
     for (const parameter of parameters){
-
+        actualData = newInfo
+        cacheData = cacheInfo
         for(const access_element of parameter){
             
             //Si es esta anidado, es decir, si tiene comas
@@ -402,7 +401,6 @@ function isString(x) {
     return Object.prototype.toString.call(x) === "[object String]"
 }
 function checkChanges(arrayChanges){
-    const array1 = [0,0,0,9];
     let bool = false
     arrayChanges.forEach((change) => {
             if(change !== 0){
@@ -417,7 +415,7 @@ function values_comparisons(repValues,jsonValues,comparisons,length){
     console.log(repValues)
     console.log(jsonValues)
     var arrayChanges = []
-    console.log(`El largo de las comparaciones es ${parameters.length}`)
+    console.log(`El largo de las comparaciones es ${length}`)
     for (let j= 0; j<length; j++){
         /* Ej 
             comparasions = ['>']
@@ -490,9 +488,8 @@ function values_comparisons(repValues,jsonValues,comparisons,length){
         }
         //Existe un cambio
         console.log(`Hubo un cambio? ${boolResult}`)
-
-        if(boolResult){
-            var changed;
+        var changed;
+        if(boolResult){            
             switch (operations[j]) {
                 case '+':
                     changed = jsonValues[j] + repValues[j]                      
@@ -516,7 +513,6 @@ function values_comparisons(repValues,jsonValues,comparisons,length){
 
         }
     }
-    
     console.log('algun cambio?')
     return arrayChanges
 }
