@@ -369,18 +369,24 @@ function access_parameters(parameters,newInfo,cacheInfo){
             //Si es esta anidado, es decir, si tiene comas
             console.log('este es el parametro a ver: ', access_element)
             console.log('Estoy en ', actualData)
+            if(actualData !== undefined && cacheData !== undefined){
 
-            if(Number.isInteger(access_element) || isString(access_element)){
-                //Se accede a una llave
-                actualData = actualData[access_element]
-                cacheData = cacheData[access_element]
+                if(Number.isInteger(access_element) || isString(access_element)){
+                    //Se accede a una llave
+                    actualData = actualData[access_element]
+                    cacheData = cacheData[access_element]
+                }
+                else{
+                    //Se hizo un length
+                    actualData = actualData.length
+                    cacheData = cacheData.length
+                }
             }
             else{
-                //Se hizo un length
-                actualData = actualData.length
-                cacheData = cacheData.length
+                actualData = 0
+                cacheData = 0
+                break;
             }
-
         }
         
         jsonValues.push(actualData)
