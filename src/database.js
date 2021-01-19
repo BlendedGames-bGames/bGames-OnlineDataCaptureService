@@ -7,13 +7,12 @@ const mysqlConnection = mysql.createConnection({
     multipleStatements:true
 })
 
-
 mysqlConnection.connect(function(err){
-    if(!!err){
+    if(err){
         console.log(err);
         return;
     } else{
-        console.log('Db is connectedddd');
+        console.log('Db is connected');
     }
 });
 
