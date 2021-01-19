@@ -15,6 +15,7 @@
     "chess-web-api": "^1.0.13",
     "cron": "^1.8.2",
     "cron-schedule": "^2.2.4",
+    "cross-env": "^7.0.3",
     "express": "^4.17.1",
     "ioredis": "^4.19.2",
     "mysql": "^2.18.1",
