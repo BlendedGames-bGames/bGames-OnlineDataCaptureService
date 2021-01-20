@@ -24,13 +24,10 @@ if (process.env.ENVIRONMENT === 'development') {
   redis_url = "redis://127.0.0.1"; 
 }  
 //redis setup
-let client = require('redis').createClient(redis_url);
-let Redis = require('ioredis');
-let redis = new Redis({
+let client = require('redis').createClient({
     port: 6379, // Redis port
     host: "redis-server", // Redis host
 });
-
 // 2020-11-20T17:35:00.000Z
 // PARA ESTE MICROSERVICIO SE NECESITA INGRESAR LOS DATOS DE LA SIGUIENTE MANERA:
 /* Ejemplo de Json del Body para el POST
