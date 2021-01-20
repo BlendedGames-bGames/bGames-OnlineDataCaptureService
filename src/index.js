@@ -3,7 +3,7 @@ const app = express();
 
 
 //Settings
-const port = process.env.PORT || 8081;
+const port = process.env.PORT || 3005;
 
 //Middlewares
 app.use(express.json());
