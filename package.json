@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "debug": "nodemon --inspect src/index.js"
+    "debug": "nodemon --inspect src/index.js",
+    "prod": "cross-env NODE_ENV=production node src/index.js"
+
   },
   "author": "Grybyus",
   "license": "ISC",
