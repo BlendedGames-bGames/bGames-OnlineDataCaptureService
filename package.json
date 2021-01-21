@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 {
   "name": "onlinedatacaptureservice",
   "version": "1.0.0",
@@ -26,3 +27,32 @@
     "nodemon": "^1.19.0"
   }
 }
+=======
+{
+  "name": "onlinedatacaptureservice",
+  "version": "1.0.0",
+  "description": "Online data capture service",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "debug": "nodemon --inspect src/index.js"
+  },
+  "author": "Grybyus",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "body-parser": "^1.19.0",
+    "chess-web-api": "^1.0.13",
+    "cron": "^1.8.2",
+    "cron-schedule": "^2.2.4",
+    "express": "^4.17.1",
+    "ioredis": "^4.19.2",
+    "mysql": "^2.18.1",
+    "node-fetch": "^2.6.0",
+    "redis": "^3.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  }
+}
+>>>>>>> Stashed changes
