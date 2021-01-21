@@ -3,7 +3,7 @@ name: Build Containers for Prod & Push to Dockerhub
 on:
   pull_request:
     branches:
-      - docker_image
+      - main
   push:
     branches:
       - docker_image

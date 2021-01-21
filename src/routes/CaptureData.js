@@ -11,6 +11,7 @@ var bodyParser =require('body-parser');
 // create application/json parser
 var jsonParser = bodyParser.json()
 
+//164.90.156.141:3001
 
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
@@ -48,7 +49,7 @@ sensorInitialization()
 
 async function sensorInitialization(){
     var options = {
-        host : 'bgames-sensormanagement.herokuapp.com',
+        host : '164.90.156.141:3007',
         path: ('/sensor_endpoints_activated')       
     };
     var url = "https://"+options.host + options.path;
@@ -304,7 +305,7 @@ async function getData(getJob){
                         }
                     })
                     var options = {
-                        host : 'bgames-standardatt.herokuapp.com',
+                        host : '164.90.156.141:3009',
                         path: ('/standard_attributes_apis')       
                     };
                     var url = "https://"+options.host + options.path;
@@ -756,7 +757,7 @@ router.post('/CaptureData/', jsonParser, function(req,res,next){
         }
 
         var options = {
-            host : 'bgames-standardattributes.herokuapp.com',
+            host : '164.90.156.141:3009',
             path: ('/StandardAttributes/')       
         };
         var url = "http://"+options.host + options.path;
