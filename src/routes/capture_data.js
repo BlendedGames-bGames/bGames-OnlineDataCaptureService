@@ -79,7 +79,7 @@ async function sensorInitialization(){
         host : '164.90.156.141:3007',
         path: ('/sensor_endpoints_activated')       
     };
-    var url = "https://"+options.host + options.path;
+    var url = "http://"+options.host + options.path;
     console.log("URL "+url);
     // construct the URL to post to a publication
     const MEDIUM_POST_URL = url;
@@ -335,7 +335,7 @@ async function getData(getJob){
                         host : '164.90.156.141:3009',
                         path: ('/standard_attributes_apis')       
                     };
-                    var url = "https://"+options.host + options.path;
+                    var url = "http://"+options.host + options.path;
                     console.log("URL "+url);
                     // construct the URL to post to a publication
                     const MEDIUM_POST_URL = url;
