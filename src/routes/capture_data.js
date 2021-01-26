@@ -1,16 +1,16 @@
 const express = require('express');
-const router = express.Router();
+const capture_data = express.Router();
 
-var http = require('http');
-const qs = require('querystring');
 const fetch = require('node-fetch');
 const axios = require('axios').default;
+import { testEnvironmentVariable } from '../settings';
 
 var bodyParser =require('body-parser');
 
 // create application/json parser
 var jsonParser = bodyParser.json()
 
+//164.90.156.141:3001
 
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
@@ -24,9 +24,17 @@ if (process.env.ENVIRONMENT === 'development') {
   redis_url = "redis://127.0.0.1"; 
 }  
 //redis setup
-let client = require('redis').createClient(redis_url);
-let Redis = require('ioredis');
-let redis = new Redis(redis_url);
+let client = require('redis').createClient({
+    port: 6379, // Redis port
+    host: "redis-server", // Redis host
+    
+});
+client.on("error", function(err) {
+    console.log("Bonk. The worker framework cannot connect to redis, which might be ok on a dev server!");
+    console.log("Resque error : "+err);
+    client.quit();
+});
+
 
 // 2020-11-20T17:35:00.000Z
 // PARA ESTE MICROSERVICIO SE NECESITA INGRESAR LOS DATOS DE LA SIGUIENTE MANERA:
@@ -41,17 +49,37 @@ let redis = new Redis(redis_url);
     "date_time": "2019-05-16 13:17:17"
     }
 */
+capture_data.get("/", (req,res) =>{
+    res.status(200).json({ message: testEnvironmentVariable})
+
+});
 
 var getAPIArray = []
+var state = false;
+capture_data.post('/start_capture', jsonParser, function(req,res,next){    
+    if(!state){
+        sensorInitialization()
+        res.status(200).json({
+            status: `Data capture has started succesfully`
+        });
+    }
+    else{
+        state = true
+        res.status(200).json({
+            status: `Data capture has already started`
+        });
+    }
 
-sensorInitialization()
+  
+
+})
 
 async function sensorInitialization(){
     var options = {
-        host : 'bgames-sensormanagement.herokuapp.com',
+        host : '164.90.156.141:3007',
         path: ('/sensor_endpoints_activated')       
     };
-    var url = "https://"+options.host + options.path;
+    var url = "http://"+options.host + options.path;
     console.log("URL "+url);
     // construct the URL to post to a publication
     const MEDIUM_POST_URL = url;
@@ -304,10 +332,10 @@ async function getData(getJob){
                         }
                     })
                     var options = {
-                        host : 'bgames-standardatt.herokuapp.com',
+                        host : '164.90.156.141:3009',
                         path: ('/standard_attributes_apis')       
                     };
-                    var url = "https://"+options.host + options.path;
+                    var url = "http://"+options.host + options.path;
                     console.log("URL "+url);
                     // construct the URL to post to a publication
                     const MEDIUM_POST_URL = url;
@@ -601,7 +629,7 @@ This function is used by devices that can post directly to the cloud service lik
 */
 const wrap = fn => (...args) => fn(...args).catch(args[2])
 
-router.put('/editSensorEndpoint/', jsonParser, wrap(async(req,res,next) => {    
+capture_data.put('/editSensorEndpoint/', jsonParser, wrap(async(req,res,next) => {    
     var uniqueSensorID = getUniqueSensorID(req.body)
     deleteSensorEndpoint(uniqueSensorID)
     var endpoint = {endpoint: createFinalEndpoint(req.body)}
@@ -646,7 +674,7 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
-router.put('/stopSensorEndpoint/', jsonParser, function(req,res,next){
+capture_data.put('/stopSensorEndpoint/', jsonParser, function(req,res,next){
     var uniqueSensorID = getUniqueSensorID(req.body)
     
     getAPIArray.forEach(api => {
@@ -666,7 +694,7 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
-router.put('/startSensorEndpoint/', jsonParser, function(req,res,next){    
+capture_data.put('/startSensorEndpoint/', jsonParser, function(req,res,next){    
     var uniqueSensorID = getUniqueSensorID(req.body)
 
     getAPIArray.forEach(api => {
@@ -705,7 +733,7 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
-router.post('/createSensorEndpoint/', jsonParser, function(req,res,next){
+capture_data.post('/createSensorEndpoint/', jsonParser, function(req,res,next){
     createSensorEndpoint(req.body)
     res.status(200).json({
         status: `Sensor endpoint ${req.body} creation succesful!`
@@ -728,7 +756,7 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
-router.delete('/deleteSensorEndpoint/', jsonParser, function(req,res,next){
+capture_data.delete('/deleteSensorEndpoint/', jsonParser, function(req,res,next){
     var uniqueSensorID = getUniqueSensorID(req.body)
 
     deleteSensorEndpoint(uniqueSensorID)
@@ -747,7 +775,7 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
-router.post('/CaptureData/', jsonParser, function(req,res,next){
+capture_data.post('/CaptureData/', jsonParser, function(req,res,next){
     try {
         var post_data = req.body;
         console.log(req.body.id_player)
@@ -756,7 +784,7 @@ router.post('/CaptureData/', jsonParser, function(req,res,next){
         }
 
         var options = {
-            host : 'bgames-standardattributes.herokuapp.com',
+            host : '164.90.156.141:3009',
             path: ('/StandardAttributes/')       
         };
         var url = "http://"+options.host + options.path;
@@ -802,5 +830,5 @@ router.post('/CaptureData/', jsonParser, function(req,res,next){
 
 
 
-module.exports = router;
+export default capture_data;
 

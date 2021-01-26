@@ -1,11 +1,15 @@
 {
-  "name": "onlinedatacaptureservice",
+  "name": "bgames-onlinedatacaptureservice",
   "version": "1.0.0",
   "description": "Online data capture service",
-  "main": "index.js",
+  "main": "/src/bin/www",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "debug": "nodemon --inspect src/index.js"
+    "prestart": "babel ./src --out-dir build",
+    "start": "node ./build/bin/www",
+    "prod": "cross-env NODE_ENV=production  babel-node ./src/bin/www",
+    "dev": "nodemon --exec babel-node ./src/bin/www",
+    "test": "nyc --reporter=html --reporter=text --reporter=lcov mocha -r @babel/register",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "author": "Grybyus",
   "license": "ISC",
@@ -13,15 +17,32 @@
     "axios": "^0.21.0",
     "body-parser": "^1.19.0",
     "chess-web-api": "^1.0.13",
+    "cookie-parser": "^1.4.5",
     "cron": "^1.8.2",
     "cron-schedule": "^2.2.4",
+    "cross-env": "^7.0.3",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "ioredis": "^4.19.2",
+    "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.0",
     "redis": "^3.0.2"
   },
   "devDependencies": {
-    "nodemon": "^1.19.0"
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "^7.12.10",
+    "@babel/node": "^7.12.10",
+    "@babel/plugin-transform-runtime": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@babel/register": "^7.12.10",
+    "@babel/runtime": "^7.12.5",
+    "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
+    "mocha": "^8.2.1",
+    "nodemon": "^1.19.0",
+    "nyc": "^15.1.0",
+    "sinon": "^9.2.3",
+    "sinon-chai": "^3.5.0",
+    "supertest": "^6.1.1"
   }
 }
