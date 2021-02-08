@@ -182,9 +182,12 @@ function createFinalEndpoint(row){
                 console.log(pkey)
                 if(tkey == pkey){
                   tokenValue = specific_parameters[tkey]
-                  parameterValue = specific_parameters_template[tkey]
-                  extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)
-                  
+                  for (const parameter of specific_parameters_template.parameters) {
+                      if(parameter.search_data.specific_param){
+                        parameterValue = parameter.search_data.specific_param
+                      }
+                  }
+                  extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)                  
                 }
             }	
         
