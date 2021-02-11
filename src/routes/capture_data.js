@@ -396,17 +396,16 @@ function access_parameters(parameters,newInfo,cacheInfo){
     for (const parameter of parameters){
         var actualData = newInfo
         var cacheData = cacheInfo
-        for(const access_element of parameter){
-            
-            //Si es esta anidado, es decir, si tiene comas
-            console.log('este es el parametro a ver: ', access_element)
+        if(parameter.length === 1){
+            //Se accede automaticamente al parametro O se saca el largo de un arreglo de resultados sin entrar a uno de ellos 
+            console.log('este es el parametro a ver: ', parameter[0])
             console.log('Estoy en ', actualData)
             if(actualData !== undefined && cacheData !== undefined){
 
-                if(Number.isInteger(access_element) || isString(access_element)){
+                if(Number.isInteger(parameter[0]) || isString(parameter[0])){
                     //Se accede a una llave
-                    actualData = actualData[access_element]
-                    cacheData = cacheData[access_element]
+                    actualData = actualData[parameter[0]]
+                    cacheData = cacheData[parameter[0]]
                 }
                 else{
                     //Se hizo un length
@@ -417,12 +416,42 @@ function access_parameters(parameters,newInfo,cacheInfo){
             else{
                 actualData = 0
                 cacheData = 0
-                break;
+            }
+            jsonValues.push(actualData)
+            repValues.push(cacheData)
+        }
+        else{
+            for(const access_element of parameter){
+            
+                //Si es esta anidado, es decir, si tiene comas
+                console.log('este es el parametro a ver: ', access_element)
+                console.log('Estoy en ', actualData)
+                if(actualData !== undefined && cacheData !== undefined){
+    
+                    if(Number.isInteger(access_element) || isString(access_element)){
+                        //Se accede a una llave
+                        actualData = actualData[access_element]
+                        cacheData = cacheData[access_element]
+                    }
+                    else{
+                        //Se hizo un length
+                        actualData = actualData.length
+                        cacheData = cacheData.length
+                    }
+                }
+                else{
+                    actualData = 0
+                    cacheData = 0
+                    break;
+                }
+                
+                jsonValues.push(actualData)
+                repValues.push(cacheData)
             }
         }
         
-        jsonValues.push(actualData)
-        repValues.push(cacheData)
+        
+       
 
     }
     
