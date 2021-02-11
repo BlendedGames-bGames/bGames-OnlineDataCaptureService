@@ -211,7 +211,7 @@ function createFinalEndpoint(row){
 function createFullEndpoint(row){
         
       
-    individualEndpoint ={  
+    var individualEndpoint ={  
         "id_player": row.id_players,   
         "id_online_sensor": row.id_online_sensor,
         "id_sensor_endpoint": row.id_sensor_endpoint,
