@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 const axios = require('axios').default;
 import { testEnvironmentVariable } from '../settings';
 
-import {baseURL, sensorPort, standardPort} from '../urls'
+import {sensorHost,standardHost} from '../urls'
 
 
 var bodyParser =require('body-parser');
@@ -79,7 +79,7 @@ capture_data.post('/start_capture', jsonParser, function(req,res,next){
 
 async function sensorInitialization(){
     var options = {
-        host :baseURL+sensorPort,
+        host :sensorHost,
         path: ('/sensor_endpoints_activated')       
     };
     var url = "http://"+options.host + options.path;
@@ -338,7 +338,7 @@ async function getData(getJob){
                         }
                     })
                     var options = {
-                        host : baseURL+standardPort,
+                        host : standardHost,
                         path: ('/standard_attributes_apis')       
                     };
                     var url = "http://"+options.host + options.path;
@@ -790,7 +790,7 @@ capture_data.post('/CaptureData/', jsonParser, function(req,res,next){
         }
 
         var options = {
-            host :  baseURL+standardPort,
+            host :  standardHost,
             path: ('/StandardAttributes/')       
         };
         var url = "http://"+options.host + options.path;
