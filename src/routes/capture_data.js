@@ -394,8 +394,8 @@ function access_parameters(parameters,newInfo,cacheInfo){
     var repValues = []
     var jsonValues = []
     for (const parameter of parameters){
-        actualData = newInfo
-        cacheData = cacheInfo
+        var actualData = newInfo
+        var cacheData = cacheInfo
         for(const access_element of parameter){
             
             //Si es esta anidado, es decir, si tiene comas
