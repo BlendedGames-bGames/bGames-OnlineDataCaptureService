@@ -183,7 +183,7 @@ function createFinalEndpoint(row){
         var tokenValue, parameterValue
         for(const tkey of tokensKeys){
             for (const parameter of parameters) {
-                    if(parameter.search_data.hasOwnProperty(specific_param)){
+                    if(parameter.search_data.hasOwnProperty('specific_param')){
                       parameterValue = parameter.search_data.specific_param
                       if(tkey == parameterValue){
                         tokenValue = specific_parameters[tkey]
