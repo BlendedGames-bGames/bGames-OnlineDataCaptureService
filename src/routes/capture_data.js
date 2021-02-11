@@ -144,6 +144,7 @@ function createFinalEndpoint(row){
         }
         var tokensKeys = Object.keys(tokens)
         var parametersKeys = Object.keys(token_parameters)
+        var tokenValue, parameterValue
         for(const tkey of tokensKeys){
             for(const pkey of parametersKeys){
                 console.log(tkey)
@@ -179,6 +180,7 @@ function createFinalEndpoint(row){
         }
         var tokensKeys = Object.keys(specific_parameters)
         var parametersKeys = Object.keys(specific_parameters_template)
+        var tokenValue, parameterValue
         for(const tkey of tokensKeys){
             for(const pkey of parametersKeys){
                 console.log(tkey)
