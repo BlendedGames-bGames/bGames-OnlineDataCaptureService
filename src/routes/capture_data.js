@@ -179,23 +179,19 @@ function createFinalEndpoint(row){
             specific_parameters_template = row.specific_parameters_template
         }
         var tokensKeys = Object.keys(specific_parameters)
-        var parametersKeys = Object.keys(specific_parameters_template)
+        var parameters = specific_parameters_template.parameters
         var tokenValue, parameterValue
         for(const tkey of tokensKeys){
-            for(const pkey of parametersKeys){
-                console.log(tkey)
-                console.log(pkey)
-                if(tkey == pkey){
-                  tokenValue = specific_parameters[tkey]
-                  for (const parameter of specific_parameters_template.parameters) {
-                      if(parameter.search_data.specific_param){
-                        parameterValue = parameter.search_data.specific_param
-                      }
-                  }
-                  extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)                  
+            for (const parameter of parameters) {
+                    if(parameter.search_data.hasOwnProperty(specific_param)){
+                      parameterValue = parameter.search_data.specific_param
+                      if(tkey == parameterValue){
+                        tokenValue = specific_parameters[tkey]
+                        
+                        extensionEndpoint = extensionEndpoint.replace('{'+parameterValue+'}', tokenValue)                  
+                    }
                 }
-            }	
-        
+            }
         }
 
     }
