@@ -346,11 +346,12 @@ async function getData(getJob){
                     var url = "http://"+options.host + options.path;
                     console.log("URL "+url);
                     // construct the URL to post to a publication
+                    // EJ: arrayChanges = [0,3,2,0,2] 
                     const MEDIUM_POST_URL = url;
                     var dataChanges ={  
                         "id_player": getJob.id_player,   
                         "id_sensor_endpoint": getJob.id_sensor_endpoint,
-                        "watch_parameters":getJob.watch_parameters,                                             
+                        "watch_parameters":getJob.watch_parameters.parameters,                                             
                         "data_changes": arrayChanges
                     }
                     console.log(dataChanges)
