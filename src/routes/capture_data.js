@@ -321,7 +321,7 @@ async function getData(getJob){
         
                 var arrayChanges;
                 console.log(`El largo de las comparaciones es ${parameters.length}`)
-                arrayChanges = values_comparisons(repValues,jsonValues,comparisons,parameters.length)
+                arrayChanges = values_comparisons(repValues,jsonValues,comparisons,operations,parameters.length)
                 
                 for(let i = 0 ; i<arrayChanges.length; i++) console.log(arrayChanges[i])
                 //Si hubo algun cambio en las variables
@@ -339,6 +339,10 @@ async function getData(getJob){
                         host : standardHost,
                         path: ('/standard_attributes_apis')       
                     };
+                    console.log('---------------------------------------------------------------------------------- \n \n')
+                    console.log('                   SE HIZO UN CAMBIO                                                \n \n')
+                    console.log('---------------------------------------------------------------------------------- \n \n')
+
                     var url = "http://"+options.host + options.path;
                     console.log("URL "+url);
                     // construct the URL to post to a publication
@@ -349,6 +353,7 @@ async function getData(getJob){
                         "watch_parameters":getJob.watch_parameters,                                             
                         "data_changes": arrayChanges
                     }
+                    console.log(dataChanges)
                     try {
                         const response = axios.post(MEDIUM_POST_URL,dataChanges);
                         console.log(response)
@@ -478,7 +483,7 @@ function checkChanges(arrayChanges){
     return bool
 }
 
-function values_comparisons(repValues,jsonValues,comparisons,length){
+function values_comparisons(repValues,jsonValues,comparisons,operations,length){
     console.log(repValues)
     console.log(jsonValues)
     var arrayChanges = []
