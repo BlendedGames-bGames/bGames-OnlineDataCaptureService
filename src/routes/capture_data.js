@@ -348,6 +348,7 @@ async function getData(getJob){
                     // construct the URL to post to a publication
                     // EJ: arrayChanges = [0,3,2,0,2] 
                     const MEDIUM_POST_URL = url;
+                    console.log(getJob.watch_parameters)
                     var dataChanges ={  
                         "id_player": getJob.id_player,   
                         "id_sensor_endpoint": getJob.id_sensor_endpoint,
