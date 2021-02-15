@@ -719,7 +719,7 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
-capture_data.put('/stop_sensor_endpoint/', jsonParser, function(req,res,next){
+capture_data.put('/stop_sensor_endpoint', jsonParser, function(req,res,next){
     var uniqueSensorID = req.body.unique_id
     
     getAPIArray.forEach(api => {
