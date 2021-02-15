@@ -624,7 +624,7 @@ function deleteSensorEndpoint(uniqueSensorID){
             indexApiToDelete = index
         }        
     });
-    getAPIArray.splice(indexApiToDelete)
+    getAPIArray.splice(indexApiToDelete,1)
 }
 /*
 Input:  Json of sensor data
@@ -674,8 +674,8 @@ This function is used by devices that can post directly to the cloud service lik
 */
 const wrap = fn => (...args) => fn(...args).catch(args[2])
 
-capture_data.put('/editSensorEndpoint/', jsonParser, wrap(async(req,res,next) => {    
-    var uniqueSensorID = getUniqueSensorID(req.body)
+capture_data.put('/edit_sensor_endpoint', jsonParser, wrap(async(req,res,next) => {    
+    var uniqueSensorID = req.body.unique_id
     deleteSensorEndpoint(uniqueSensorID)
     var endpoint = {endpoint: createFinalEndpoint(req.body)}
     var recievedJson = null
@@ -719,8 +719,8 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
-capture_data.put('/stopSensorEndpoint/', jsonParser, function(req,res,next){
-    var uniqueSensorID = getUniqueSensorID(req.body)
+capture_data.put('/stop_sensor_endpoint/', jsonParser, function(req,res,next){
+    var uniqueSensorID = req.body.unique_id
     
     getAPIArray.forEach(api => {
         if(api.id === uniqueSensorID){
