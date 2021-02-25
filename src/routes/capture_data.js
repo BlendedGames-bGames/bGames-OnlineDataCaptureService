@@ -829,7 +829,7 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
-capture_data.post('/capture_external_data', jsonParser, function(req,res,next){
+capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next) =>{
     try {
         var post_data = req.body;
         /*
@@ -878,7 +878,7 @@ capture_data.post('/capture_external_data', jsonParser, function(req,res,next){
     }
     
 
-})
+}))
 
 
 
