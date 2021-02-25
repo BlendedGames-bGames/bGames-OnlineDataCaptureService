@@ -93,8 +93,12 @@ async function sensorInitialization(){
         var apiGetArray = []
         var individualEndpoint;
         for (const row of data){
-            individualEndpoint = createFullEndpoint(row)
-            apiGetArray.push(individualEndpoint)
+            //Si es un endpoint basado en software (se saca de una api y no de una app externa)
+            if(row.base_url !== null){
+
+                individualEndpoint = createFullEndpoint(row)
+                apiGetArray.push(individualEndpoint)
+            }
         }
         schedulingOnlineData(apiGetArray)
         
@@ -825,52 +829,50 @@ Output: Void (stores the data in the db)
 Description: Calls the b-Games-ApirestPostAtt service 
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
-capture_data.post('/CaptureData/', jsonParser, function(req,res,next){
+capture_data.post('/capture_external_data', jsonParser, function(req,res,next){
     try {
         var post_data = req.body;
-        console.log(req.body.id_player)
-        if(!req.body.id_player || !req.body.nameat|| !req.body.namecategory|| !req.body.data|| !req.body.data_type|| !req.body.input_source|| !req.body.date_time){
-        console.log('nope')
+        /*
+            var id_player = req.body.id_player
+            var id_sensor_endpoint = req.body.id_sensor_endpoint
+            // [2,20,4,0,0]
+            var data_changes = req.body.data_changes
+            // Ej: [['chess_blitz','records',win'], ['elo'],['puzzle_challenge','record'],['puzzle_rush'],['chess_rapid','record','win']]
+            var watch_parameters = req.body.watch_parameters
+        
+        */
+        console.log(post_data)
+        if(!post_data.id_player || !post_data.id_sensor_endpoint|| !post_data.data_changes|| !post_data.watch_parameters){
+                console.log('nope')
         }
 
         var options = {
             host :  standardHost,
-            path: ('/StandardAttributes/')       
+            path: ('/standard_attributes_apis')       
         };
         var url = "http://"+options.host + options.path;
         console.log("URL "+url);
-        // construct the URL to post to a publication
-        const MEDIUM_POST_URL = url;
-        console.log(post_data.id_player)
-        console.log(post_data.nameat)
-        console.log(post_data.namecategory)
-        console.log(post_data.data)
-        console.log(post_data.data_type)
-        console.log(post_data.input_source)
-        console.log(post_data.date_time)
+        var dataChanges ={  
+            "id_player": post_data.id_player,   
+            "id_sensor_endpoint": post_data.id_sensor_endpoint,
+            "watch_parameters":post_data.parameters,                                             
+            "data_changes": post_data.data_changes
+        }
 
-        const response = fetch(MEDIUM_POST_URL, {
-            method: "post",
-            headers: {
-                "Content-type": "application/json",
-                "Accept": "application/json",
-                "Accept-Charset": "utf-8"
-                },
-                body: JSON.stringify({
-                    id_player: post_data.id_player,
-                    nameat: post_data.nameat,
-                    namecategory:post_data.namecategory,
-                    data:post_data.data,
-                    data_type:post_data.data_type,
-                    input_source:post_data.input_source,
-                    date_time:post_data.date_time
-                })
-        })
-        .then(res => {
-            if (res.resultCode == "200") return res.json('Success');
-            return Promise.reject(`Bad call: ${res.resultCode}`);
-        })
-        .then(console.log);
+        try {
+            const response =  await axios.post(url,dataChanges);
+            console.log(response)
+            res.status(200).json({
+                status: `Dato enviado correctamente`
+            });   
+            
+        } 
+        catch (error) {
+            console.error(error);
+            res.status(400).json({
+                status: `Error en enviar los datos, porfavor intentelo nuevamente`
+            });  
+        } 
     } catch (error) {
         next(error);
     }
