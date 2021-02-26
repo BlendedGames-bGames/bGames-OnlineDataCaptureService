@@ -849,10 +849,8 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
         }
         let int_id_player = parseInt(post_data.id_player)
         let int_id_sensor_endpoint = parseInt(post_data.id_sensor_endpoint)
-        let int_data_changes = []
-        post_data.data_changes.forEach(element => {
-            int_data_changes.push(parseInt(element))
-        });
+        let int_data_changes = [parseInt(post_data.data_changes)]
+       
        //Estatico por el momento
        let str_watch_parameters = []
        str_watch_parameters.push([watch_parameters])
