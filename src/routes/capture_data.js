@@ -853,7 +853,7 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
        
        //Estatico por el momento
        let str_watch_parameters = []
-       str_watch_parameters.push([watch_parameters])
+       str_watch_parameters.push([post_data.watch_parameters])
         var options = {
             host :  standardHost,
             path: ('/standard_attributes_apis')       
