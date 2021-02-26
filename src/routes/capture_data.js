@@ -863,8 +863,8 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
         var dataChanges ={  
             "id_player": int_id_player,   
             "id_sensor_endpoint": int_id_sensor_endpoint,
-            "watch_parameters":int_data_changes,                                             
-            "data_changes": str_watch_parameters
+            "watch_parameters":str_watch_parameters,                                             
+            "data_changes": int_data_changes
         }
         console.log(dataChanges)
 
