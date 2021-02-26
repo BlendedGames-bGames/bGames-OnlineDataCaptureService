@@ -843,9 +843,19 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
         */
         console.log(post_data)
         if(!post_data.id_player || !post_data.id_sensor_endpoint|| !post_data.data_changes|| !post_data.watch_parameters){
-                console.log('nope')
+            res.status(400).json({
+                status: `Error en enviar los datos, porfavor intentelo nuevamente`
+            });  
         }
-
+        let int_id_player = parseInt(post_data.id_player)
+        let int_id_sensor_endpoint = parseInt(post_data.id_sensor_endpoint)
+        let int_data_changes = []
+        post_data.data_changes.forEach(element => {
+            int_data_changes.push(parseInt(element))
+        });
+       //Estatico por el momento
+       let str_watch_parameters = []
+       str_watch_parameters.push([watch_parameters])
         var options = {
             host :  standardHost,
             path: ('/standard_attributes_apis')       
@@ -853,11 +863,12 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
         var url = "http://"+options.host + options.path;
         console.log("URL "+url);
         var dataChanges ={  
-            "id_player": post_data.id_player,   
-            "id_sensor_endpoint": post_data.id_sensor_endpoint,
-            "watch_parameters":post_data.parameters,                                             
-            "data_changes": post_data.data_changes
+            "id_player": int_id_player,   
+            "id_sensor_endpoint": int_id_sensor_endpoint,
+            "watch_parameters":int_data_changes,                                             
+            "data_changes": str_watch_parameters
         }
+        console.log(dataChanges)
 
         try {
             const response =  await axios.post(url,dataChanges);
