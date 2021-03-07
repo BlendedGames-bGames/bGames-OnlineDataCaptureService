@@ -1,6 +1,6 @@
 const express = require('express');
 const capture_data = express.Router();
-
+const Twitter = require('twitter-v2');
 const fetch = require('node-fetch');
 const axios = require('axios').default;
 import { testEnvironmentVariable } from '../settings';
@@ -13,10 +13,9 @@ var bodyParser =require('body-parser');
 // create application/json parser
 var jsonParser = bodyParser.json()
 
-//164.90.156.141:3001
-
-// create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+const client_twitter = new Twitter({
+    bearer_token: process.env.BEARER_TOKEN,
+});
 
 var CronJob = require('cron').CronJob;
 

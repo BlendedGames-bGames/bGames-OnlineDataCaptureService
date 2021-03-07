@@ -26,7 +26,8 @@
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.0",
-    "redis": "^3.0.2"
+    "redis": "^3.0.2",
+    "twitter-v2": "^1.0.7"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.10",
