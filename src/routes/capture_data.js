@@ -129,83 +129,98 @@ function getUniqueSensorID(sensor){
 function createFinalEndpoint(row){
   
     var finalEndpoint = row.base_url
-    var extensionEndpoint = row.url_endpoint   
-    
-    if(row.tokens !== null && row.token_parameters !== null){
-        var tokens;
-        var token_parameters;
-        //Si no es un json (cuando se saca de la db es un string)
-        if(typeof(row.tokens) !== "object" && typeof(row.token_parameters) !== "object"){
+    var extensionEndpoint 
 
-            tokens = JSON.parse(row.tokens)
-            token_parameters = JSON.parse(row.token_parameters)
+    if(finalEndpoint === 'https://api.twitter.com/2/'){
+        //CASO ESPECIAL: TWITTER
+        const data = {
+            header_parameters: JSON.parse(row.header_parameters),
+            url: row.url_endpoint
         }
-        else{
-            //Si ya es un json (pasa en peticiones desde el front)
-            tokens = row.tokens
-            token_parameters = row.token_parameters
-        }
-        var tokensKeys = Object.keys(tokens)
-        var parametersKeys = Object.keys(token_parameters)
-        var tokenValue, parameterValue
-        for(const tkey of tokensKeys){
-            for(const pkey of parametersKeys){
-                console.log(tkey)
-                console.log(pkey)
-                if(tkey == pkey){
-                  tokenValue = tokens[tkey]
-                  parameterValue = token_parameters[tkey]
-                  extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)
-                  
-                }
-            }	
-        
-        }
+        return data
 
 
     }
-    console.log("\n este es el specific template y de parameters \n")
-    console.log(row.specific_parameters_template)
-    console.log(row.specific_parameters)
-    if(row.specific_parameters_template !== null && row.specific_parameters !== null){
-        var specific_parameters;
-        var specific_parameters_template;
-        //Si no es un json (cuando se saca de la db es un string)
-        if(typeof(row.specific_parameters_template) !== "object" && typeof(row.specific_parameters) !== "object"){
-
-            specific_parameters = JSON.parse(row.specific_parameters)
-            specific_parameters_template = JSON.parse(row.specific_parameters_template)
+    else{
+        extensionEndpoint = row.url_endpoint   
+        if(row.tokens !== null && row.token_parameters !== null){
+            var tokens;
+            var token_parameters;
+            //Si no es un json (cuando se saca de la db es un string)
+            if(typeof(row.tokens) !== "object" && typeof(row.token_parameters) !== "object"){
+    
+                tokens = JSON.parse(row.tokens)
+                token_parameters = JSON.parse(row.token_parameters)
+            }
+            else{
+                //Si ya es un json (pasa en peticiones desde el front)
+                tokens = row.tokens
+                token_parameters = row.token_parameters
+            }
+            var tokensKeys = Object.keys(tokens)
+            var parametersKeys = Object.keys(token_parameters)
+            var tokenValue, parameterValue
+            for(const tkey of tokensKeys){
+                for(const pkey of parametersKeys){
+                    console.log(tkey)
+                    console.log(pkey)
+                    if(tkey == pkey){
+                      tokenValue = tokens[tkey]
+                      parameterValue = token_parameters[tkey]
+                      extensionEndpoint = extensionEndpoint.replace(parameterValue, tokenValue)
+                      
+                    }
+                }	
+            
+            }
+    
+    
         }
-        else{
-            //Si ya es un json (pasa en peticiones desde el front)
-            specific_parameters = row.specific_parameters
-            specific_parameters_template = row.specific_parameters_template
-        }
-        var tokensKeys = Object.keys(specific_parameters)
-        var parameters = specific_parameters_template.parameters
-        var tokenValue, parameterValue
-        for(const tkey of tokensKeys){
-            for (const parameter of parameters) {
-                    if(parameter.search_data.hasOwnProperty('specific_param')){
-                      parameterValue = parameter.search_data.specific_param
-                      if(tkey == parameterValue){
-                        tokenValue = specific_parameters[tkey]
-                        
-                        extensionEndpoint = extensionEndpoint.replace('{'+parameterValue+'}', tokenValue)                  
+        console.log("\n este es el specific template y de parameters \n")
+        console.log(row.specific_parameters_template)
+        console.log(row.specific_parameters)
+        if(row.specific_parameters_template !== null && row.specific_parameters !== null){
+            var specific_parameters;
+            var specific_parameters_template;
+            //Si no es un json (cuando se saca de la db es un string)
+            if(typeof(row.specific_parameters_template) !== "object" && typeof(row.specific_parameters) !== "object"){
+    
+                specific_parameters = JSON.parse(row.specific_parameters)
+                specific_parameters_template = JSON.parse(row.specific_parameters_template)
+            }
+            else{
+                //Si ya es un json (pasa en peticiones desde el front)
+                specific_parameters = row.specific_parameters
+                specific_parameters_template = row.specific_parameters_template
+            }
+            var tokensKeys = Object.keys(specific_parameters)
+            var parameters = specific_parameters_template.parameters
+            var tokenValue, parameterValue
+            for(const tkey of tokensKeys){
+                for (const parameter of parameters) {
+                        if(parameter.search_data.hasOwnProperty('specific_param')){
+                          parameterValue = parameter.search_data.specific_param
+                          if(tkey == parameterValue){
+                            tokenValue = specific_parameters[tkey]
+                            
+                            extensionEndpoint = extensionEndpoint.replace('{'+parameterValue+'}', tokenValue)                  
+                        }
                     }
                 }
             }
+    
         }
-
+        console.log('the final endpoint is')
+     
+        finalEndpoint += extensionEndpoint
+    
+        console.log(finalEndpoint)
+    
+        console.log(finalEndpoint)
+        return finalEndpoint
     }
-    console.log('the final endpoint is')
- 
-    finalEndpoint += extensionEndpoint
-
-    console.log(finalEndpoint)
-
-    console.log(finalEndpoint)
-    return finalEndpoint
+    
+   
 }
 function createFullEndpoint(row){
     let aux_player
@@ -230,16 +245,26 @@ function createFullEndpoint(row){
  
 }
 async function getDataEndpoint(getJob){
-    const response = await fetch(getJob.endpoint, {
-        method: "GET",
-        headers: {
-            "Content-type": "application/json",
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8"
-        },
-    })
-    const json = await response.json();
-    return json
+
+    if(!isString(getJob.endpoint)){
+        //CASO ESPECIAL: TWITTER
+        const { data } = await client_twitter.get(getJob.endpoint.url, getJob.endpoint.header_parameters);
+        return data
+
+    }
+    else{
+
+        const response = await fetch(getJob.endpoint, {
+            method: "GET",
+            headers: {
+                "Content-type": "application/json",
+                "Accept": "application/json",
+                "Accept-Charset": "utf-8"
+            },
+        })
+        const json = await response.json();
+        return json
+    }
 }
 
 async function getData(getJob){
