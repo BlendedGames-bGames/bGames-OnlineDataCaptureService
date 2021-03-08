@@ -522,7 +522,10 @@ function checkChanges(arrayChanges){
     );
     return bool
 }
-
+function isObject(val) {
+    if (val === null) { return false;}
+    return ( (typeof val === 'function') || (typeof val === 'object') );
+}
 function values_comparisons(repValues,jsonValues,comparisons,operations,length){
     console.log(repValues)
     console.log(jsonValues)
@@ -538,8 +541,17 @@ function values_comparisons(repValues,jsonValues,comparisons,operations,length){
         */
         var boolResult;
         console.log(`La comparacion que se realizara ahora es: ${comparisons[j]}`)
-        console.log(`Entre el valor: ${jsonValues[j]}`)
-        console.log(`y el valor: ${repValues[j]}`)
+        console.log(`Entre el valor: `)
+        console.log(jsonValues[j])
+        console.log(`y el valor: `)
+        console.log(repValues[j])
+
+        if(isObject(jsonValues[j])){
+            Object.keys(jsonValues[j]).forEach((prop)=> console.log(prop));
+        }
+        if(isObject(repValues[j])){
+            Object.keys(repValues[j]).forEach((prop)=> console.log(prop));
+        }
 
         switch (comparisons[j]) {
                 case '>':
