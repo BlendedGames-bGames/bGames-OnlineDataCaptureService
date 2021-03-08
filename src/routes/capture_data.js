@@ -136,10 +136,33 @@ function createFinalEndpoint(row){
     if(finalEndpoint === 'https://api.twitter.com/2/'){
         //CASO ESPECIAL: TWITTER
         console.log(row.header_parameters)
+        let specific_parameters, specific_parameters_template
+        if(typeof(row.specific_parameters_template) !== "object" && typeof(row.specific_parameters) !== "object"){
+    
+            specific_parameters = JSON.parse(row.specific_parameters)
+            specific_parameters_template = JSON.parse(row.specific_parameters_template)
+        }
+        else{
+            //Si ya es un json (pasa en peticiones desde el front)
+            specific_parameters = row.specific_parameters
+            specific_parameters_template = row.specific_parameters_template
+        }
+        var tokensKeys = Object.keys(specific_parameters)
+
         const data = {
             header_parameters: JSON.parse(row.header_parameters),
             url: row.url_endpoint
         }
+        for (const identificator of tokenKeys) {
+            if(identificator !== 'actual_data'){
+                data.header_parameters[identificator] = specific_parameters[identificator]
+            }
+            
+        }
+        console.log('este el el json que voy a mandar para obtener los datos en twitter')
+        console.log(data)
+        
+
         return data
 
 
@@ -479,17 +502,23 @@ function access_parameters(parameters,newInfo,cacheInfo){
                     console.log(access_element)
     
                     if(Number.isInteger(access_element) || isString(access_element)){
-                        //Se accede a una llave
-                        console.log('Entre!')
-                        console.log('estoy en (x2): linea 482')
-                        console.log(actualData)
-                        console.log('este es el dato que voy a asignar')
-                        console.log(actualData[access_element])
-                        actualData = actualData[access_element]
-                        console.log('Al final este es dato: linea 487')
-                        console.log(actualData)
+                        if(Number.isInteger(access_element) && isObject(actualData)){
+                            //No se puede acceder a un numero en un objeto por ende hay que pasar al siguiente parametro
+                            continue;
+                        }
+                        else{
+                            //Se accede a una llave
+                            console.log('Entre!')
+                            console.log('estoy en (x2): linea 482')
+                            console.log(actualData)
+                            console.log('este es el dato que voy a asignar')
+                            console.log(actualData[access_element])
+                            actualData = actualData[access_element]
+                            console.log('Al final este es dato: linea 487')
+                            console.log(actualData)
 
-                        cacheData = cacheData[access_element]
+                            cacheData = cacheData[access_element]
+                        }
                     }
                     else{
                         //Se hizo un length
