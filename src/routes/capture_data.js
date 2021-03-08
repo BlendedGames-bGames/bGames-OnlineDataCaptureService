@@ -472,10 +472,20 @@ function access_parameters(parameters,newInfo,cacheInfo){
                 console.log('este es el parametro a ver: ', access_element)
                 console.log('Estoy en ', actualData)
                 if(actualData !== undefined && cacheData !== undefined){
+                    console.log('El parametro a ver dentro del objecto es: linea 477 ')
+                    console.log(access_element)
     
                     if(Number.isInteger(access_element) || isString(access_element)){
                         //Se accede a una llave
+                        console.log('Entre!')
+                        console.log('estoy en (x2): linea 482')
+                        console.log(actualData)
+                        console.log('este es el dato que voy a asignar')
+                        console.log(actualData[access_element])
                         actualData = actualData[access_element]
+                        console.log('Al final este es dato: linea 487')
+                        console.log(actualData)
+
                         cacheData = cacheData[access_element]
                     }
                     else{
@@ -489,7 +499,11 @@ function access_parameters(parameters,newInfo,cacheInfo){
                     cacheData = 0
                     break;
                 }
-                
+                console.log('Al final el dato que voy a comparar es: ')
+                console.log(actualData)
+                console.log('Con: ')
+                console.log(cacheData)
+
                 jsonValues.push(actualData)
                 repValues.push(cacheData)
             }
