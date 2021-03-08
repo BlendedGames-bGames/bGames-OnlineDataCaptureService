@@ -130,9 +130,12 @@ function createFinalEndpoint(row){
   
     var finalEndpoint = row.base_url
     var extensionEndpoint 
+    console.log('Estos son los datos para crear la url')
+    console.log(row)
 
     if(finalEndpoint === 'https://api.twitter.com/2/'){
         //CASO ESPECIAL: TWITTER
+        console.log(row.header_parameters)
         const data = {
             header_parameters: JSON.parse(row.header_parameters),
             url: row.url_endpoint
