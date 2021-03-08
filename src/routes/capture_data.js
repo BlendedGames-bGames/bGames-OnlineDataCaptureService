@@ -504,9 +504,10 @@ function access_parameters(parameters,newInfo,cacheInfo){
                 console.log('Con: ')
                 console.log(cacheData)
 
-                jsonValues.push(actualData)
-                repValues.push(cacheData)
             }
+            
+            jsonValues.push(actualData)
+            repValues.push(cacheData)
         }
         
         
