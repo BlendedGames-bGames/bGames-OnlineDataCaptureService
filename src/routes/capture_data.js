@@ -913,7 +913,7 @@ Description: Calls the b-Games-ApirestPostAtt service
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
 capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next) =>{
-    try {
+    
         var post_data = req.body;
         /*
             var id_player = req.body.id_player
@@ -925,7 +925,24 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
         
         */
         console.log(post_data)
-        if(!post_data.id_player || !post_data.id_sensor_endpoint|| !post_data.data_changes|| !post_data.watch_parameters){
+
+        let keys = Object.keys(req.body)
+        console.log(keys)
+        let properJSON = JSON.parse(keys[0])
+        console.log(properJSON)
+        var id_player = properJSON.id_player;
+        var id_sensor_endpoint = properJSON.id_videogame;
+        var data_changes = properJSON.data_changes;
+        var watch_parameters = properJSON.watch_parameters;
+        console.log(id_player)
+        console.log(id_sensor_endpoint)
+        console.log(data_changes)
+        console.log(watch_parameters)
+
+        res.status(200).json({
+                status: `Dato enviado correctamente`
+        });  
+        /*if(!post_data.id_player || !post_data.id_sensor_endpoint|| !post_data.data_changes|| !post_data.watch_parameters){
             res.status(400).json({
                 status: `Error en enviar los datos, porfavor intentelo nuevamente`
             });  
@@ -965,9 +982,8 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
                 status: `Error en enviar los datos, porfavor intentelo nuevamente`
             });  
         } 
-    } catch (error) {
-        next(error);
-    }
+        */
+   
     
 
 }))
