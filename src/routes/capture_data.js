@@ -952,7 +952,7 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
         console.log(data_changes_array)
 
         var watch_parameters_array = []
-        var watch_parameters_elements = data_changes.split('.')
+        var watch_parameters_elements = watch_parameters.split('.')
         var datas;
         var single_parameter_array;
         for (const single_parameter of watch_parameters_elements) {
