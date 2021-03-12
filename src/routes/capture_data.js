@@ -924,6 +924,7 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
             var watch_parameters = req.body.watch_parameters
         
         */
+       //FORCED PUSH
         console.log(post_data)
 
         var id_player = post_data.id_player;
