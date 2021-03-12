@@ -945,16 +945,21 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
         let int_id_sensor_endpoint = parseInt(post_data.id_sensor_endpoint)
 
         let data_changes_array = []
-        var data_changes_process = data_changes.split(',')
-        for (const data of data_changes_process) {
-            data_changes_array.push(parseInt(data))
+        var data_changes_process = data_changes.split('.')
+        var datas;
+        var single_parameter_array;
+        for (const single_parameter of data_changes_process) {
+            datas = single_parameter.split(',')    
+            single_parameter_array = []
+            for (const data of datas){
+                single_parameter_array.push(data)
+            }   
+            data_changes_array.push(single_parameter_array)
         }
-        console.log(data_changes_array)
 
         var watch_parameters_array = []
         var watch_parameters_elements = watch_parameters.split('.')
-        var datas;
-        var single_parameter_array;
+       
         for (const single_parameter of watch_parameters_elements) {
             datas = single_parameter.split(',')    
             single_parameter_array = []
