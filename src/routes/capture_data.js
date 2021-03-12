@@ -926,45 +926,57 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
         */
         console.log(post_data)
 
-        let keys = Object.keys(req.body)
-        console.log(keys)
-        let properJSON = JSON.parse(keys[0])
-        console.log(properJSON)
-        var id_player = properJSON.id_player;
-        var id_sensor_endpoint = properJSON.id_videogame;
-        var data_changes = properJSON.data_changes;
-        var watch_parameters = properJSON.watch_parameters;
+        var id_player = post_data.id_player;
+        var id_sensor_endpoint = post_data.id_sensor_endpoint;
+        var data_changes = post_data.data_changes;
+        var watch_parameters = post_data.watch_parameters;
         console.log(id_player)
         console.log(id_sensor_endpoint)
         console.log(data_changes)
         console.log(watch_parameters)
 
-        res.status(200).json({
-                status: `Dato enviado correctamente`
-        });  
-        /*if(!post_data.id_player || !post_data.id_sensor_endpoint|| !post_data.data_changes|| !post_data.watch_parameters){
+        
+        if(!id_player || !id_sensor_endpoint|| !data_changes|| !watch_parameters){
             res.status(400).json({
                 status: `Error en enviar los datos, porfavor intentelo nuevamente`
             });  
         }
         let int_id_player = parseInt(post_data.id_player)
         let int_id_sensor_endpoint = parseInt(post_data.id_sensor_endpoint)
-        let int_data_changes = [parseInt(post_data.data_changes)]
+
+        let data_changes_array = []
+        var data_changes_process = data_changes.split(',')
+        for (const data of data_changes_process) {
+            data_changes_array.push(parseInt(data))
+        }
+        console.log(data_changes_array)
+
+        var watch_parameters_array = []
+        var watch_parameters_elements = data_changes.split('.')
+        var datas;
+        var single_parameter_array;
+        for (const single_parameter of watch_parameters_elements) {
+            datas = single_parameter.split(',')    
+            single_parameter_array = []
+            for (const data of datas){
+                single_parameter_array.push(data)
+            }   
+            watch_parameters_array.push(single_parameter_array)
+        }
+
+        console.log(watch_parameters_array)
        
-       //Estatico por el momento
-       let str_watch_parameters = []
-       str_watch_parameters.push([post_data.watch_parameters])
         var options = {
             host :  standardHost,
             path: ('/standard_attributes_apis')       
         };
         var url = "http://"+options.host + options.path;
         console.log("URL "+url);
-        var dataChanges ={  
+        var dataChanges = {  
             "id_player": int_id_player,   
             "id_sensor_endpoint": int_id_sensor_endpoint,
-            "watch_parameters":str_watch_parameters,                                             
-            "data_changes": int_data_changes
+            "watch_parameters":watch_parameters_array,                                             
+            "data_changes": data_changes_array
         }
         console.log(dataChanges)
 
@@ -982,7 +994,7 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
                 status: `Error en enviar los datos, porfavor intentelo nuevamente`
             });  
         } 
-        */
+        
    
     
 
