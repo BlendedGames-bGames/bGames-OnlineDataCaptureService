@@ -953,7 +953,7 @@ capture_data.post('/capture_external_data', jsonParser,  wrap(async(req,res,next
             datas = single_parameter.split(',')    
             single_parameter_array = []
             for (const data of datas){
-                single_parameter_array.push(data)
+                single_parameter_array.push(parseInt(data))
             }   
             data_changes_array.push(single_parameter_array)
         }
