@@ -187,7 +187,7 @@ function createFinalEndpoint(row){
             var tokensKeys = Object.keys(specific_parameters)
 
       
-            for (const identificator of tokenKeys) {
+            for (const identificator of tokensKeys) {
                 if(identificator !== 'actual_data'){
                     data.header_parameters[identificator] = specific_parameters[identificator]
                 }
