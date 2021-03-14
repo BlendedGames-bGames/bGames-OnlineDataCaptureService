@@ -313,8 +313,8 @@ async function getDataEndpoint(getJob){
 
     if(!isString(getJob.endpoint)){
         //CASO ESPECIAL: TWITTER
-        const { data } = await client_twitter.get(getJob.endpoint.url, getJob.endpoint.header_parameters);
-        return data
+        const reply = await client_twitter.get(getJob.endpoint.url, getJob.endpoint.header_parameters);
+        return reply
 
     }
     else{
