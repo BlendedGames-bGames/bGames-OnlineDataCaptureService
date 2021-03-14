@@ -541,6 +541,7 @@ function access_parameters(parameters,newInfo,cacheInfo){
                     console.log(access_element)
     
                     if(Number.isInteger(access_element) || isString(access_element)){
+                        //IS NOT ARRAY BUT JUST AN OBJECT
                         if(Number.isInteger(access_element) && isObject(actualData)){
                             //No se puede acceder a un numero en un objeto por ende hay que pasar al siguiente parametro
                             continue;
@@ -610,7 +611,7 @@ function checkChanges(arrayChanges){
 }
 function isObject(val) {
     if (val === null) { return false;}
-    return ( (typeof val === 'function') || (typeof val === 'object') );
+    return ( (typeof val === 'function') || (typeof val === 'object') && !Array.isArray(val));
 }
 function values_comparisons(repValues,jsonValues,comparisons,operations,length){
     console.log(repValues)
