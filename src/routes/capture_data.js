@@ -137,28 +137,67 @@ function createFinalEndpoint(row){
         //CASO ESPECIAL: TWITTER
         console.log(row.header_parameters)
         let specific_parameters, specific_parameters_template
-        if(typeof(row.specific_parameters_template) !== "object" && typeof(row.specific_parameters) !== "object"){
-    
-            specific_parameters = JSON.parse(row.specific_parameters)
-            specific_parameters_template = JSON.parse(row.specific_parameters_template)
-        }
-        else{
-            //Si ya es un json (pasa en peticiones desde el front)
-            specific_parameters = row.specific_parameters
-            specific_parameters_template = row.specific_parameters_template
-        }
-        var tokensKeys = Object.keys(specific_parameters)
-
         const data = {
             header_parameters: JSON.parse(row.header_parameters),
             url: row.url_endpoint
         }
-        for (const identificator of tokenKeys) {
-            if(identificator !== 'actual_data'){
-                data.header_parameters[identificator] = specific_parameters[identificator]
+        if(row.tokens !== null && row.token_parameters !== null){
+            var tokens;
+            var token_parameters;
+            //Si no es un json (cuando se saca de la db es un string)
+            if(typeof(row.tokens) !== "object" && typeof(row.token_parameters) !== "object"){
+    
+                tokens = JSON.parse(row.tokens)
+                token_parameters = JSON.parse(row.token_parameters)
             }
+            else{
+                //Si ya es un json (pasa en peticiones desde el front)
+                tokens = row.tokens
+                token_parameters = row.token_parameters
+            }
+            var tokensKeys = Object.keys(tokens)
+            var parametersKeys = Object.keys(token_parameters)
+            var tokenValue, parameterValue
+            for(const tkey of tokensKeys){
+                for(const pkey of parametersKeys){
+                    console.log(tkey)
+                    console.log(pkey)
+                    if(tkey == pkey){
+                      tokenValue = tokens[tkey]
+                      data.header_parameters[tkey] = tokenValue
+                      
+                    }
+                }	
             
+            }
+
         }
+
+        if(row.specific_parameters_template !== null && row.specific_parameters !== null){
+            if(typeof(row.specific_parameters_template) !== "object" && typeof(row.specific_parameters) !== "object"){
+    
+                specific_parameters = JSON.parse(row.specific_parameters)
+                specific_parameters_template = JSON.parse(row.specific_parameters_template)
+            }
+            else{
+                //Si ya es un json (pasa en peticiones desde el front)
+                specific_parameters = row.specific_parameters
+                specific_parameters_template = row.specific_parameters_template
+            }
+            var tokensKeys = Object.keys(specific_parameters)
+
+      
+            for (const identificator of tokenKeys) {
+                if(identificator !== 'actual_data'){
+                    data.header_parameters[identificator] = specific_parameters[identificator]
+                }
+                
+            }
+
+
+        }
+       
+      
         console.log('este el el json que voy a mandar para obtener los datos en twitter')
         console.log(data)
         
