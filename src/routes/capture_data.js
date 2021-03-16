@@ -108,23 +108,8 @@ async function sensorInitialization(){
     
 
 }
-  
+  //id_players_sensor_endpoint
 
-
-function getUniqueSensorID(sensor){    
-    console.log(sensor.id_online_sensor.toString())
-    console.log(sensor.id_sensor_endpoint.toString())
-    //Cuando se crea un sensor_point en el front
-    if(sensor.id_player === undefined){
-        return sensor.id_players.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
-
-    }
-    else{
-        return sensor.id_player.toString()+sensor.id_online_sensor.toString()+sensor.id_sensor_endpoint.toString()
-
-    }
-    
-}
 
 function createFinalEndpoint(row){
   
@@ -297,6 +282,7 @@ function createFullEndpoint(row){
     }  
     var individualEndpoint ={  
         "id_player": aux_player,   
+        "id_players_sensor_endpoint": row.id_players_sensor_endpoint,
         "id_online_sensor": row.id_online_sensor,
         "id_sensor_endpoint": row.id_sensor_endpoint,
         "endpoint": createFinalEndpoint(row),
@@ -335,11 +321,10 @@ async function getDataEndpoint(getJob){
 async function getData(getJob){
     console.log('esto es lo quie entra en la funcion del cron')
     console.log(JSON.stringify(getJob))
-    var uniqueSensorID = getUniqueSensorID(getJob)
     const json = await getDataEndpoint(getJob)
  
     //Revisar si el dato esta en la cache
-    client.get(uniqueSensorID, (error, rep)=> {         
+    client.get(getJob.id_players_sensor_endpoint, (error, rep)=> {         
         console.log('este es el rep')
         console.log(rep)       
         if(error){                                                 
@@ -424,13 +409,13 @@ async function getData(getJob){
                 for(let i = 0 ; i<arrayChanges.length; i++) console.log(arrayChanges[i])
                 //Si hubo algun cambio en las variables
                 if(checkChanges(arrayChanges)){
-                    client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
+                    client.set(getJob.id_players_sensor_endpoint, JSON.stringify(json),(error, result)=> { 
                         if(error){                                                
                             console.log('nope', error)                           
                         }
                         else{
                             console.log('after client.set result is', result);
-                            console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(json) );
+                            console.log('He guardado en el cache lo siguiente ', getJob.id_players_sensor_endpoint, JSON.stringify(json) );
                         }
                     })
                     var options = {
@@ -478,13 +463,13 @@ async function getData(getJob){
         }                  
         else{
             //Si no se encuentra entonces almacenar en la cache usando su identificador
-            client.set(uniqueSensorID, JSON.stringify(json),(error, result)=> { 
+            client.set(getJob.id_players_sensor_endpoint, JSON.stringify(json),(error, result)=> { 
                 if(error){                                                
                     console.log('nope', error)                           
                 }
                 else{
                     console.log('after client.set result is', result);
-                    console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(json) );
+                    console.log('He guardado en el cache lo siguiente ', getJob.id_players_sensor_endpoint, JSON.stringify(json) );
                 }
             })   
         }   //end of outer else
@@ -736,9 +721,7 @@ function runningJobs(getJob) {
     var job = new CronJob('*/'+ getJob.schedule_time.toString()+' * * * * *', function(){
         getData(getJob)       
     }, true, 'America/Santiago');
-    var uniqueSensorID  = getUniqueSensorID(getJob)
-
-    getAPIArray.push({"job":job, "id":uniqueSensorID })
+    getAPIArray.push({"job":job, "id":getJob.id_players_sensor_endpoint })
     return job;    
 }
 function schedulingOnlineData(apiGetArray) {
@@ -772,7 +755,7 @@ Input:  Json of sensor data
         "schedule_time": schedule_time
    }
 */
-function createSensorEndpoint(fullSensorBody){
+function createSensorEndpoint(fullSensorBody, id_players_sensor_endpoint){
     console.log('esto entro:')
     console.log(JSON.stringify(fullSensorBody))
     var finalEndpoint = createFullEndpoint(fullSensorBody)
@@ -781,10 +764,9 @@ function createSensorEndpoint(fullSensorBody){
     var job = new CronJob('*/'+ finalEndpoint.schedule_time.toString()+' * * * * *', function(){
         getData(finalEndpoint)       
     }, true, 'America/Santiago');
-    var uniqueSensorID = getUniqueSensorID(fullSensorBody)
     console.log('este es el id')
-    console.log(uniqueSensorID)
-    getAPIArray.push({"job":job, "id":uniqueSensorID })
+    console.log(id_players_sensor_endpoint)
+    getAPIArray.push({"job":job, "id":id_players_sensor_endpoint })
 
 }
 
@@ -807,8 +789,8 @@ This function is used by devices that can post directly to the cloud service lik
 const wrap = fn => (...args) => fn(...args).catch(args[2])
 
 capture_data.put('/edit_sensor_endpoint', jsonParser, wrap(async(req,res,next) => {    
-    var uniqueSensorID = req.body.unique_id
-    deleteSensorEndpoint(uniqueSensorID)
+    var id_players_sensor_endpoint = req.body.id_players_sensor_endpoint
+    deleteSensorEndpoint(id_players_sensor_endpoint)
     var endpoint = {endpoint: createFinalEndpoint(req.body)}
     var recievedJson = null
     try {
@@ -817,18 +799,18 @@ capture_data.put('/edit_sensor_endpoint', jsonParser, wrap(async(req,res,next) =
         console.log('Este es el json que me dio')
         console.log(recievedJson)
         console.log('Este es el ID (deberia ser 113)')
-        console.log(uniqueSensorID)
-        client.set(uniqueSensorID, JSON.stringify(recievedJson),(error, result)=> { 
+        console.log(id_players_sensor_endpoint)
+        client.set(id_players_sensor_endpoint, JSON.stringify(recievedJson),(error, result)=> { 
             if(error){                                                
                 console.log('nope', error)                           
             }
             else{
                 console.log('after client.set result is', result);
-                console.log('He guardado en el cache lo siguiente ', uniqueSensorID, JSON.stringify(recievedJson) );
+                console.log('He guardado en el cache lo siguiente ', id_players_sensor_endpoint, JSON.stringify(recievedJson) );
             }
         }) 
     
-        createSensorEndpoint(req.body)
+        createSensorEndpoint(req.body, id_players_sensor_endpoint)
         
     
         res.status(200).json({
@@ -852,7 +834,7 @@ Description: Calls the b-Games-ApirestPostAtt service
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
 capture_data.put('/stop_sensor_endpoint', jsonParser, function(req,res,next){
-    var uniqueSensorID = req.body.unique_id
+    var uniqueSensorID = req.body.id_players_sensor_endpoint
     
     getAPIArray.forEach(api => {
         if(api.id === uniqueSensorID){
@@ -872,7 +854,7 @@ Description: Calls the b-Games-ApirestPostAtt service
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
 capture_data.put('/startSensorEndpoint/', jsonParser, function(req,res,next){    
-    var uniqueSensorID = getUniqueSensorID(req.body)
+    var uniqueSensorID = req.body.id_players_sensor_endpoint
 
     getAPIArray.forEach(api => {
         if(api.id === uniqueSensorID){
@@ -911,7 +893,7 @@ Description: Calls the b-Games-ApirestPostAtt service
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
 capture_data.post('/createSensorEndpoint/', jsonParser, function(req,res,next){
-    createSensorEndpoint(req.body)
+    createSensorEndpoint(req.body, req.body.id_players_sensor_endpoint)
     res.status(200).json({
         status: `Sensor endpoint ${req.body} creation succesful!`
       });
@@ -934,7 +916,7 @@ Description: Calls the b-Games-ApirestPostAtt service
 This function is used by devices that can post directly to the cloud service like mobile phones
 */
 capture_data.delete('/deleteSensorEndpoint/', jsonParser, function(req,res,next){
-    var uniqueSensorID = getUniqueSensorID(req.body)
+    var uniqueSensorID = req.body.id_players_sensor_endpoint
 
     deleteSensorEndpoint(uniqueSensorID)
     res.status(200).json({
