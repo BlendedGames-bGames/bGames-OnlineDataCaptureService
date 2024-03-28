@@ -1,3 +1,3 @@
-const sensorHost = "bgames-SensorManagementService:3007"
-const standardHost = "bgames-StandardAttributesService:3009"
+const sensorHost = "localhost:3007"
+const standardHost = "localhost:3009"
 export {sensorHost,standardHost}
