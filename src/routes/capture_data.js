@@ -1,8 +1,17 @@
 const express = require('express');
 const capture_data = express.Router();
-const Twitter = require('twitter-v2');
+//const Twitter = require('twitter-v2');
 const fetch = require('node-fetch');
 const axios = require('axios').default;
+const redis = require('redis');
+
+const client = redis.createClient({
+    host: 'localhost',
+    port: 6379
+});
+
+client.on('error', err => console.log('Redis Client Error', err));
+
 import { testEnvironmentVariable } from '../settings';
 
 import {sensorHost,standardHost} from '../urls'
@@ -13,29 +22,31 @@ var bodyParser =require('body-parser');
 // create application/json parser
 var jsonParser = bodyParser.json()
 
-const client_twitter = new Twitter({
-    bearer_token: process.env.BEARER_TOKEN,
-});
+//const client_twitter = new Twitter({
+//    bearer_token: process.env.BEARER_TOKEN,
+//});
 
 var CronJob = require('cron').CronJob;
 
+
+
 //production redis url
-let redis_url = process.env.REDIS_URL;
-if (process.env.ENVIRONMENT === 'development') {  
-  require('dotenv').config();  
-  redis_url = "redis://127.0.0.1"; 
-}  
+//let redis_url = process.env.REDIS_URL;
+//if (process.env.ENVIRONMENT === 'development') {  
+//  require('dotenv').config();  
+//  redis_url = "redis://127.0.0.1"; 
+//}  
 //redis setup
-let client = require('redis').createClient({
-    port: 6379, // Redis port
-    host: "redis-server", // Redis host
+//let client = require('redis').createClient({
+//    port: 6379, // Redis port
+//    host: "redis-server", // Redis host
     
-});
-client.on("error", function(err) {
-    console.log("Bonk. The worker framework cannot connect to redis, which might be ok on a dev server!");
-    console.log("Resque error : "+err);
-    client.quit();
-});
+//});
+//client.on("error", function(err) {
+//    console.log("Bonk. The worker framework cannot connect to redis, which might be ok on a dev server!");
+//    console.log("Resque error : "+err);
+//    client.quit();
+//});
 
 
 // 2020-11-20T17:35:00.000Z
@@ -258,14 +269,18 @@ function createFinalEndpoint(row){
                     }
                 }
             }
-    
+            //extensionEndpoint = 'https://api.chess.com/pub/player/{username}/stats'
+            //specific_parameters = {
+            //    'username' : "skuldzero"
+            //}
+            //specific_parameters_template = {
+            //    parameters : [{search_data: {specific_param: "username"}}]
+            //}
         }
         console.log('the final endpoint is')
      
         finalEndpoint += extensionEndpoint
-    
-        console.log(finalEndpoint)
-    
+      
         console.log(finalEndpoint)
         return finalEndpoint
     }
